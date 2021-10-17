@@ -16,8 +16,12 @@ catkin_package(
   DEPENDS PCL
 )
 
-add_executable(pcl_hline_reducer src/pcl_hline_reducer/pcl_hline_reducer.cpp)
+add_executable(pcl_hline_reducer src/pcl_hline_reducer.cpp)
 target_include_directories(pcl_hline_reducer PRIVATE include ${catkin_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS})
 target_link_libraries(pcl_hline_reducer PRIVATE ${catkin_LIBRARIES} ${PCL_LIBRARIES})
 target_compile_options(pcl_hline_reducer PRIVATE -Wall -Werror)
 
+add_executable(pizza_filter src/pizza_filter.cpp)
+target_include_directories(pizza_filter PRIVATE include ${catkin_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS})
+target_link_libraries(pizza_filter PRIVATE ${catkin_LIBRARIES} ${PCL_LIBRARIES})
+target_compile_options(pizza_filter PRIVATE -Wall -Werror)

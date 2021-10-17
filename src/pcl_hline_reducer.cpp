@@ -5,8 +5,8 @@
   * @date 10/17/21
  */
  
-#include "ouster.h"
-#include "pcl_hline_reducer/parameters.h"
+#include "utils/ouster.h"
+#include "utils/pcl_hline_reducer/parameters.h"
 
 #include <sensor_msgs/PointCloud2.h>
 #include <pcl_conversions/pcl_conversions.h>
@@ -27,32 +27,32 @@ struct PCLHlineReducer : public pcl_hline_reducer::Parameters
     void cloud_handler(const sensor_msgs::PointCloud2ConstPtr &cloud_msg)
     {
         // convert cloud to pcl to be able to iterate through it more easily
-        pcl::PointCloud<PointOuster>::Ptr cloud(new pcl::PointCloud<PointOuster>());
+        pcl::PointCloud<utils::PointOuster>::Ptr cloud(new pcl::PointCloud<utils::PointOuster>());
         pcl::fromROSMsg(*cloud_msg, *cloud);
         
         // init target cloud
-        pcl::PointCloud<PointOuster> result_cloud;
-        result_cloud.points.resize(target_height*width);
+        pcl::PointCloud<utils::PointOuster> result_cloud;
+        result_cloud.points.resize(pcl_target_height * pcl_width);
         
-        if (height * width != (int)cloud->size())
+        if (pcl_height * pcl_width != (int)cloud->size())
         {
-            ROS_ERROR_STREAM_THROTTLE(1, "Check horizontal and vertical resolution. Height * Width must match pointclouds size (" << (int)cloud->size() << " vs " << height * width << ")");
+            ROS_ERROR_STREAM_THROTTLE(1, "Check horizontal and vertical resolution. Height * Width must match pointclouds size (" << (int)cloud->size() << " vs " << pcl_height * pcl_width << ")");
             return;
         }
         
         // target height index has to be handled seperately
         int target_u = 0;
         
-        for (int u = 0; u < height; u++)
+        for (int u = 0; u < pcl_height; u++)
         {
             // If line isn't supposed to skipped
             // copy point of original cloud into correct spot in new cloud
             if (u % skip == 0)
             {
-                for (int v = 0; v < width; v++)
+                for (int v = 0; v < pcl_width; v++)
                 {
-                    const auto &pt = cloud->points[u * width + v];
-                    result_cloud.points[target_u * width + v] = pt;
+                    const auto &pt = cloud->points[u * pcl_width + v];
+                    result_cloud.points[target_u * pcl_width + v] = pt;
                 }
     
                 target_u++;

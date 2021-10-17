@@ -8,9 +8,13 @@
   * @author julian 
   * @date 10/17/21
  */
+ 
+namespace utils
+{
 
 // current as of 17/10/2021
-struct EIGEN_ALIGN16 PointOuster {
+struct EIGEN_ALIGN16 PointOuster
+{
     PCL_ADD_POINT4D;
     float intensity;
     uint32_t t;
@@ -21,8 +25,10 @@ struct EIGEN_ALIGN16 PointOuster {
     EIGEN_MAKE_ALIGNED_OPERATOR_NEW
 };
 
+} // end namespace utils
+
 // clang-format off
-POINT_CLOUD_REGISTER_POINT_STRUCT(PointOuster,
+POINT_CLOUD_REGISTER_POINT_STRUCT(utils::PointOuster,
     (float, x, x)
     (float, y, y)
     (float, z, z)

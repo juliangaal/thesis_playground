@@ -1,0 +1,6 @@
+<launch>
+    <!-- Parameters -->
+    <rosparam file="$(find utils)/config/params.yaml" command="load" />
+    <!-- start pizza_filter -->
+    <node name="pizza_filter" pkg="utils" type="pizza_filter" output="screen"/>
+</launch>
