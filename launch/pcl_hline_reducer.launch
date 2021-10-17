@@ -1,0 +1,6 @@
+<launch>
+    <!-- Parameters -->
+    <rosparam file="$(find utils)/config/params.yaml" command="load" />
+    <!-- start pcl_hline_reducer -->
+    <node name="pcl_hline_reducer" pkg="utils" type="pcl_hline_reducer" output="screen"/>
+</launch>

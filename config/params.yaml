@@ -1,0 +1,6 @@
+pcl_hline_reducer:
+  sub_topic: "/os_cloud_node/points"
+  pub_topic: "/pcl_hline_reduced"
+  height: 128
+  width: 2048
+  target_height: 64
