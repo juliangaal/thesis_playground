@@ -28,11 +28,6 @@ struct Parameters
         {
             throw std::runtime_error("starting_angle must be > 0 && < 360");
         }
-        
-        if (pizza_width >= (360-starting_angle))
-        {
-            throw std::runtime_error("filter_width must be < 360 - starting angle");
-        }
     }
     
     virtual ~Parameters() = default;
