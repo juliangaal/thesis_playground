@@ -1,0 +1,10 @@
+<launch>
+    <include file="$(find utils)/launch/phidgets_ouster.launch"/>
+
+    <!--- Parameters -->
+    <rosparam file="$(find utils)/config/uos.yaml" command="load"/>
+
+    <!--- ImageProjection only -->
+	<node pkg="lio_sam" type="lio_sam_imageProjection" name="lio_sam_imageProjection" output="screen"/>
+</launch>
+

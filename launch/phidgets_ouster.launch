@@ -1,0 +1,12 @@
+<launch>
+  <include file="$(find ouster_ros)/ouster.launch">
+    <arg name="sensor_hostname" value="192.168.100.123"/>
+    <arg name="lidar_mode" value="1024x10"/>
+    <arg name="metadata" value="$(find ouster_ros)/metadata.json"/>
+    <arg name="timestamp_mode" value="TIME_FROM_PTP_1588"/> 
+  </include>
+
+  <include file="$(find phidgets_imu)/launch/imu_single_nodes.launch"/>
+
+  <node pkg="tf" type="static_transform_publisher" name="ouster2imu" args="0 0 0 0 0 0 1 /os_sensor /imu 100"/>
+</launch>
