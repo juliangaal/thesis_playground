@@ -1,0 +1,16 @@
+cmake_minimum_required(VERSION 3.0.2)
+project(subvoxelmap)
+
+set(CMAKE_CXX_COMPILER_VERSION 14)
+
+find_package(Catch2 3 REQUIRED)
+find_package(fmt REQUIRED)
+
+add_executable(subvoxelmap src/main.cpp)
+target_compile_options(subvoxelmap PRIVATE -Wall -Weffc++)
+target_include_directories(subvoxelmap PRIVATE ${fmt_INCLUDE_DIRS})
+target_link_libraries(subvoxelmap PRIVATE fmt::fmt)
+
+add_executable(test src/test.cpp)
+target_include_directories(test PRIVATE ${Catch2_INCLUDE_DIRS})
+target_link_libraries(test PRIVATE Catch2::Catch2WithMain fmt::fmt)
