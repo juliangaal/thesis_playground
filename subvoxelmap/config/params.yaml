@@ -1,0 +1,5 @@
+subvoxelmap:
+  map_size: 5
+  map_res: 1
+  subvoxel_res: 0.1
+  debug: true
