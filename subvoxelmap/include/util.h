@@ -14,6 +14,7 @@ bool is_approx(double val1, double val2, double epsilon = 0.001)
 int conv3d21d(int x, int y, int z, int w, int d)
 {
     return static_cast<int>(x + y * w + z * w * d);
+//    return static_cast<int>(x * w * d + y * w + z);
 }
 
 std::tuple<int, int, int> to_arr_idx(double x, double y, double z, double res)

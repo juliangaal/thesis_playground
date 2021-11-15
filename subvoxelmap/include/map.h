@@ -38,9 +38,20 @@ public:
     Map(const map::Map&) = delete;
     Map(Map&&) = delete;
 
-    const SubvoxelMap* at(double x, double y, double z) const
+//    const SubvoxelMap* at(double x, double y, double z) const
+//    {
+//        return map[util::to_1d_arr_idx(x, y, z, res, w, d)];
+//    }
+
+    const SubvoxelMap* at(int x, int y, int z) const
     {
-        return map[util::to_1d_arr_idx(x, y, z, res, w, d)];
+        int i = util::conv3d21d(x, y, z, w, d);
+        if (i > size)
+        {
+            throw std::runtime_error(fmt::format("Map accessed @ {} with size {}", i, size).c_str());
+        }
+
+        return map[i];
     }
 
     const SubvoxelMap* at(Point p) const
@@ -53,8 +64,14 @@ public:
         return at(i % w, ( i / w ) % h, i / ( w * h ));
     }
 
-    void add(double x, double y, double z, int val)
+    void insert(double x, double y, double z, int val)
     {
+        if (!in_range(x, y, z))
+        {
+            ROS_ERROR("%s", fmt::format("Received point out of bounds: ({}/{}/{})", x, y, z).c_str());
+            return;
+        }
+
         if (submap_unititialized(x, y, z))
         {
             init_subvoxel_map(x, y, z);
@@ -65,6 +82,26 @@ public:
         insert_into_subvoxel_map(x, y, z, val);
     }
 
+    int _h() const
+    {
+        return h;
+    }
+
+    int _w() const
+    {
+        return w;
+    }
+
+    int _d() const
+    {
+        return d;
+    }
+
+    double _res() const
+    {
+        return res;
+    }
+
 private:
     int h;
     int w;
@@ -73,10 +110,15 @@ private:
     double res;
     SubvoxelMap** map;
 
+    bool in_range(double x, double y, double z)
+    {
+        return x >= 0 && x < map_size && y >= 0 && y < map_size && z >= 0 && z < map_size;
+    }
+
     void init_subvoxel_map(double x, double y, double z)
     {
         int subvoxel_size = static_cast<int>(w / res);
-        map[util::to_1d_arr_idx(x, y, z, res, w, d)] = new SubvoxelMap(subvoxel_size, subvoxel_size, subvoxel_size, subvoxel_res);
+        map[util::to_1d_arr_idx(x, y, z, res, w, d)] = new SubvoxelMap(subvoxel_size, subvoxel_size, subvoxel_size, subvoxel_res, res);
         assert(map[util::to_1d_arr_idx(x, y, z, res, w, d)] != nullptr);
     }
 
