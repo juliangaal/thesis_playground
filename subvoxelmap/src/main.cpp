@@ -16,10 +16,6 @@ void publish_subvoxelmap(const map::SubvoxelMap* map, ros::Publisher& pub, geome
     marker.scale.x = map->_res();
     marker.scale.y = map->_res();
     marker.scale.z = map->_res();
-    marker.color.a = 0.2;
-    marker.color.r = 1.0;
-    marker.color.g = 0.0;
-    marker.color.b = 0.0;
 
     geometry_msgs::Point cube_center;
 
@@ -33,6 +29,18 @@ void publish_subvoxelmap(const map::SubvoxelMap* map, ros::Publisher& pub, geome
                 cube_center.y = origin.y + y * map->_res() + map->_res() / 2;
                 cube_center.z = origin.z + z * map->_res() + map->_res() / 2;
                 marker.points.push_back(cube_center);
+
+                std_msgs::ColorRGBA color;
+                color.r = 1.0;
+                color.g = 0.0;
+                color.b = 0.0;
+                color.a = 0.05;
+
+                if (not std::isnan(map->at(x, y, z)))
+                {
+                    color.a = 1.0;
+                }
+                marker.colors.push_back(color);
             }
         }
     }
@@ -96,9 +104,13 @@ int main(int argc, char** argv)
     ros::NodeHandle nh;
     map::Map map(nh);
     map.insert(0, 0, 2, 3);
+    map.insert(0, 0, 2.6, 3);
     map.insert(2, 0, 0, 3);
+    map.insert(2.6, 0, 0, 3);
     map.insert(2, 2, 2, 3);
-    map.insert(0, 8, 0, 3);
+    map.insert(2, 2.6, 2, 3);
+    map.insert(2.6, 2.0, 2, 3);
+    map.insert(2.6, 2.6, 2, 3);
 
     ros::Publisher vis_pub = nh.advertise<visualization_msgs::Marker>("map", 0);
 
@@ -106,6 +118,7 @@ int main(int argc, char** argv)
     {
         publish_map(map, vis_pub);
         ros::spinOnce();
+        ros::Rate(0.1).sleep();
     }
 }
 

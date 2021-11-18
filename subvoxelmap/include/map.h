@@ -17,10 +17,10 @@ public:
     , h(static_cast<int>(map_size/map_res))
     , w(static_cast<int>(map_size/map_res))
     , d(static_cast<int>(map_size/map_res))
-    , size(h * w * d)
+    , nelems(h * w * d)
     , res(map_res), map(new SubvoxelMap*[h * w * d])
     {
-        ROS_DEBUG("%s", fmt::format("creating map with dims ({}/{}/{}), res: {}, total elements: {}\n", h, w, d, res, size).c_str());
+        ROS_DEBUG("%s", fmt::format("creating map with dims ({}/{}/{}), res: {}, total elements: {}\n", h, w, d, res, nelems).c_str());
     }
 
     ~Map()
@@ -38,25 +38,26 @@ public:
     Map(const map::Map&) = delete;
     Map(Map&&) = delete;
 
-//    const SubvoxelMap* at(double x, double y, double z) const
-//    {
-//        return map[util::to_1d_arr_idx(x, y, z, res, w, d)];
-//    }
-
     const SubvoxelMap* at(int x, int y, int z) const
     {
-        int i = util::conv3d21d(x, y, z, w, d);
-        if (i > size)
+        int i = util::conv_3dindex_1dindex(x, y, z, w, d);
+        if (i > nelems)
         {
-            throw std::runtime_error(fmt::format("Map accessed @ {} with size {}", i, size).c_str());
+            throw std::runtime_error(fmt::format("Map accessed @ {} with size {}", i, nelems).c_str());
         }
 
         return map[i];
     }
 
-    const SubvoxelMap* at(Point p) const
+    const SubvoxelMap* at(double x, double y, double z) const
     {
-        return at(p.x, p.y, p.z);
+        int i = util::conv_3dpoint_1dindex(x, y, z, res, w, d);
+        if (i > nelems || x < 0 || x >= map_size || y < 0 || y >= map_size || z < 0 || z >= map_size)
+        {
+            throw std::runtime_error(fmt::format("Map accessed with ({}/{}/{}) @ map[{}] with {} elements and map size {}", x, y, z, i, nelems, map_size).c_str());
+        }
+
+        return map[i];
     }
 
     const SubvoxelMap* at(int i) const
@@ -75,10 +76,17 @@ public:
         if (submap_unititialized(x, y, z))
         {
             init_subvoxel_map(x, y, z);
-            assert(map[util::to_1d_arr_idx(x, y, z, res, w, d)] != nullptr);
+            assert(map[util::conv_3dpoint_1dindex(x, y, z, res, w, d)] != nullptr);
         }
 
-        ROS_DEBUG("%s", fmt::format("creating submap @ ({}/{}/{}) for value: {} -> size: ({}/{}/{}), res: {}, total elements: {}\n", x / res, y / res, z / res, val, static_cast<int>(w / res), static_cast<int>(w / res), static_cast<int>(w / res), subvoxel_res, map[util::to_1d_arr_idx(x, y, z, res, w, d)]->_size()).c_str());
+        util::Point<double> submap_p = to_submap_point(x, y, z);
+        auto* subvoxelmap = map[util::conv_3dpoint_1dindex(x, y, z, res, w, d)];
+        util::Point<int> _3dindex = util::conv_3dpoint_3dindex(x, y, z, res);
+        ROS_DEBUG("%s", "--\n");
+        ROS_DEBUG("%s", fmt::format("Inserting    ({}/{}/{})", x, y, z).c_str());
+        ROS_DEBUG("%s", fmt::format("Converted to ({}/{}/{})", _3dindex.x, _3dindex.y, _3dindex.z).c_str());
+        ROS_DEBUG("%s", fmt::format("Creating submap with dims ({}/{}/{}) and res {}", subvoxelmap->_h(), subvoxelmap->_w(), subvoxelmap->_d(), subvoxel_res).c_str());
+        ROS_DEBUG("%s", fmt::format("Converting ({}/{}/{}) to ({}/{}/{}) to insert into submap", x, y, z, submap_p.x, submap_p.y, submap_p.z).c_str());
         insert_into_subvoxel_map(x, y, z, val);
     }
 
@@ -106,7 +114,7 @@ private:
     int h;
     int w;
     int d;
-    int size;
+    int nelems;
     double res;
     SubvoxelMap** map;
 
@@ -117,15 +125,16 @@ private:
 
     void init_subvoxel_map(double x, double y, double z)
     {
-        int subvoxel_size = static_cast<int>(w / res);
-        map[util::to_1d_arr_idx(x, y, z, res, w, d)] = new SubvoxelMap(subvoxel_size, subvoxel_size, subvoxel_size, subvoxel_res, res);
-        assert(map[util::to_1d_arr_idx(x, y, z, res, w, d)] != nullptr);
+        int subvoxel_elems_per_dim = static_cast<int>(res / subvoxel_res);
+        map[util::conv_3dpoint_1dindex(x, y, z, res, w, d)] = new SubvoxelMap(subvoxel_elems_per_dim, subvoxel_elems_per_dim, subvoxel_elems_per_dim, subvoxel_res, res);
+        assert(map[util::conv_3dpoint_1dindex(x, y, z, res, w, d)] != nullptr);
     }
 
     void insert_into_subvoxel_map(double x, double y, double z, double val)
     {
-        Point submap_p = to_submap_point(x, y, z);
-        auto* subvoxelmap = map[util::to_1d_arr_idx(x, y, z, res, w, d)];
+        auto* subvoxelmap = map[util::conv_3dpoint_1dindex(x, y, z, res, w, d)];
+
+        util::Point<double> submap_p = to_submap_point(x, y, z);
         subvoxelmap->insert(submap_p.x, submap_p.y, submap_p.z, val);
     }
 
@@ -134,9 +143,10 @@ private:
         return at(x, y, z) == nullptr;
     }
 
-    Point to_submap_point(double x, double y, double z) const
+    util::Point<double> to_submap_point(double x, double y, double z) const
     {
-        return {x - (x / res), y - (y / res), z - (z / res)};
+        util::Point<int> origin = util::conv_3dpoint_3dindex(x, y, z, res);
+        return {x - origin.x, y - origin.y, z - origin.z};
     }
 };
 
