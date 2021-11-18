@@ -21,6 +21,8 @@ target_compile_options(subvoxelmap PRIVATE -Wall -Weffc++)
 target_include_directories(subvoxelmap PRIVATE ${fmt_INCLUDE_DIRS}  ${catkin_INCLUDE_DIRS} include)
 target_link_libraries(subvoxelmap PRIVATE fmt::fmt ${catkin_LIBRARIES})
 
-#add_executable(test src/test.cpp)
-#target_include_directories(test PRIVATE ${Catch2_INCLUDE_DIRS} include)
-#target_link_libraries(test PRIVATE Catch2::Catch2WithMain fmt::fmt)
+add_executable(subvoxelmap_test src/test.cpp)
+target_include_directories(subvoxelmap_test PRIVATE ${Catch2_INCLUDE_DIRS} include)
+target_link_libraries(subvoxelmap_test PRIVATE Catch2::Catch2WithMain fmt::fmt)
+
+add_test(NAME test COMMAND subvoxelmap_test)
