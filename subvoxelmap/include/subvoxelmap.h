@@ -1,7 +1,7 @@
 #pragma once
 
 #include "util.h"
-
+#include <iostream>
 #include <fmt/printf.h>
 #include <cassert>
 
@@ -41,13 +41,13 @@ public:
     SubvoxelMap(const SubvoxelMap&) = delete;
     SubvoxelMap(SubvoxelMap&&) = delete;
 
-    double& at(double x, double y, double z)
+    double at_point(double x, double y, double z) const
     {
         util::Point<int> _3dindex = util::conv_3dpoint_3dindex(x, y, z, res);
-        return at(_3dindex.x, _3dindex.y, _3dindex.z);
+        return at_index(_3dindex.x, _3dindex.y, _3dindex.z);
     }
 
-    double& at(int x, int y, int z) const
+    double at_index(int x, int y, int z) const
     {
         if (!in_range(x, y, z))
         {
@@ -57,9 +57,16 @@ public:
         return map[i];
     }
 
+    // TODO auslagern
     void insert(double x, double y, double z, double val)
     {
-        at(x, y, z) = val;
+        util::Point<int> _3dindex = util::conv_3dpoint_3dindex(x, y, z, res);
+        if (!in_range(_3dindex.x, _3dindex.y, _3dindex.z))
+        {
+            throw std::runtime_error(fmt::format("Accessing subvoxelmap @ invalid location: accessed @ ({}/{}/{}) with size {}\n", x, y, z, size));
+        }
+        int i = util::conv_3dindex_1dindex(_3dindex.x, _3dindex.y, _3dindex.z, w, d);
+        map[i] = val;
     }
 
     void clear()

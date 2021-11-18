@@ -36,7 +36,7 @@ void publish_subvoxelmap(const map::SubvoxelMap* map, ros::Publisher& pub, geome
                 color.b = 0.0;
                 color.a = 0.05;
 
-                if (not std::isnan(map->at(x, y, z)))
+                if (not std::isnan(map->at_index(x, y, z)))
                 {
                     color.a = 1.0;
                 }
@@ -58,9 +58,9 @@ void publish_map(const map::Map& map, ros::Publisher& pub)
     marker.type = visualization_msgs::Marker::CUBE_LIST;
     marker.action = visualization_msgs::Marker::ADD;
     marker.pose.orientation.w = 1.0;
-    marker.scale.x = map._res();
-    marker.scale.y = map._res();
-    marker.scale.z = map._res();
+    marker.scale.x = map._map_res();
+    marker.scale.y = map._map_res();
+    marker.scale.z = map._map_res();
     marker.color.a = 0.2;
     marker.color.r = 0.0;
     marker.color.g = 1.0;
@@ -74,13 +74,13 @@ void publish_map(const map::Map& map, ros::Publisher& pub)
         {
             for (int z = 0; z < map._d(); ++z)
             {
-                auto* subvoxelmap = map.at(x, y, z);
+                auto* subvoxelmap = map.at_index(x, y, z);
 
                 if (subvoxelmap == nullptr)
                 {
-                    cube_center.x = x + map._res() / 2;
-                    cube_center.y = y + map._res() / 2;
-                    cube_center.z = z + map._res() / 2;
+                    cube_center.x = x + map._map_res() / 2;
+                    cube_center.y = y + map._map_res() / 2;
+                    cube_center.z = z + map._map_res() / 2;
                     marker.points.push_back(cube_center);
 
                 }
@@ -102,7 +102,8 @@ int main(int argc, char** argv)
 {
     ros::init(argc, argv, "subvoxelmap");
     ros::NodeHandle nh;
-    map::Map map(nh);
+    subvoxelmap::Parameters params(nh);
+    map::Map map(params);
     map.insert(0, 0, 2, 3);
     map.insert(0, 0, 2.6, 3);
     map.insert(2, 0, 0, 3);

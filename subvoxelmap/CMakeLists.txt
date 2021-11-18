@@ -18,11 +18,11 @@ catkin_package(
 
 add_executable(subvoxelmap src/main.cpp)
 target_compile_options(subvoxelmap PRIVATE -Wall -Weffc++)
-target_include_directories(subvoxelmap PRIVATE ${fmt_INCLUDE_DIRS}  ${catkin_INCLUDE_DIRS} include)
+target_include_directories(subvoxelmap PRIVATE ${fmt_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS} include)
 target_link_libraries(subvoxelmap PRIVATE fmt::fmt ${catkin_LIBRARIES})
 
 add_executable(subvoxelmap_test src/test.cpp)
-target_include_directories(subvoxelmap_test PRIVATE ${Catch2_INCLUDE_DIRS} include)
+target_include_directories(subvoxelmap_test PRIVATE ${Catch2_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS} include)
 target_link_libraries(subvoxelmap_test PRIVATE Catch2::Catch2WithMain fmt::fmt)
 
 add_test(NAME test COMMAND subvoxelmap_test)

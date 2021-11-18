@@ -13,13 +13,21 @@ namespace subvoxelmap
 
 struct Parameters
 {
+    Parameters(int map_size, double map_res, double subvoxel_res, bool debug = false)
+    : map_size(map_size)
+    , map_res(map_res)
+    , subvoxel_res(subvoxel_res)
+    , debug(debug)
+    {
+    }
+
     explicit Parameters(ros::NodeHandle& nh) : map_size(), map_res(), subvoxel_res()
     {
         nh.param<int>("subvoxelmap/map_size", map_size, 10);
         nh.param<double>("subvoxelmap/map_res", map_res, 2.0);
-        ROS_INFO_STREAM("Map config: size " << map_size << ", res " << map_res);
+        ROS_INFO_STREAM("Map config: size " << map_size << ", map_res " << map_res);
         nh.param<double>("subvoxelmap/subvoxel_res", subvoxel_res, 1.0);
-        ROS_INFO_STREAM("Subvoxel config: res " << subvoxel_res);
+        ROS_INFO_STREAM("Subvoxel config: map_res " << subvoxel_res);
         nh.param<bool>("subvoxelmap/debug", debug, false);
         ROS_INFO_STREAM("Debug output: " << std::boolalpha << debug);
 
@@ -44,7 +52,7 @@ struct Parameters
         }
     }
     
-    virtual ~Parameters() = default;
+    ~Parameters() = default;
     
     int map_size;
     double map_res;
