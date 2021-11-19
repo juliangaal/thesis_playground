@@ -99,6 +99,26 @@ TEST_CASE("Subvoxelamp", "[subvoxelmap]")
     REQUIRE(map2._d() == 10);
 }
 
+bool n_initialized_submaps(map::Map& map, int n)
+{
+    int counter = 0;
+    for (int x = 0; x < map._h(); ++x)
+    {
+        for (int y = 0; y < map._w(); ++y)
+        {
+            for (int z = 0; z < map._d(); ++z)
+            {
+                if (map.at_index(x, y, z) != nullptr)
+                {
+                   ++counter;
+                }
+            }
+        }
+    }
+
+    return counter == n;
+}
+
 void test_map(map::Map& map, int map_size, double map_res, double subvoxel_res)
 {
     // Test Initialization
@@ -122,9 +142,44 @@ void test_map(map::Map& map, int map_size, double map_res, double subvoxel_res)
     REQUIRE_FALSE(map.insert(map_size, 0, 0, 1));
     REQUIRE_FALSE(map.insert(0, map_size, 0, 1));
     REQUIRE_FALSE(map.insert(0, 0, map_size, 1));
+    REQUIRE_FALSE(map.insert(-map_size, 0, 0, 1));
+    REQUIRE_FALSE(map.insert(0, -map_size, 0, 1));
+    REQUIRE_FALSE(map.insert(0, 0, -map_size, 1));
+
+    int submaps_intialized = 0;
 
     REQUIRE(map.insert(0.25, 0.25, 0.25, 1.0));
-    REQUIRE(map.submap_at(0.25, 0.25, 0.25) == 1.0);
+    REQUIRE(map.val_in_submap(0.25, 0.25, 0.25) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+
+    REQUIRE(map.insert(0.25, 0.75, 0.75, 1.0));
+    REQUIRE(map.val_in_submap(0.25, 0.75, 0.75) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+
+    REQUIRE(map.insert(0.75, 0.25, 0.75, 1.0));
+    REQUIRE(map.val_in_submap(0.75, 0.25, 0.75) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+
+    REQUIRE(map.insert(0.75, 0.75, 0.25, 1.0));
+    REQUIRE(map.val_in_submap(0.75, 0.75, 0.25) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+
+    REQUIRE(map.insert(0.75, 0.75, 0.75, 1.0));
+    REQUIRE(map.val_in_submap(0.75, 0.75, 0.75) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+
+    REQUIRE(map.insert(0.75, 0.25, 0.25, 1.0));
+    REQUIRE(map.val_in_submap(0.75, 0.25, 0.25) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+
+    REQUIRE(map.insert(0.25, 0.75, 0.25, 1.0));
+    REQUIRE(map.val_in_submap(0.25, 0.75, 0.25) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+
+    REQUIRE(map.insert(0.25, 0.25, 0.75, 1.0));
+    REQUIRE(map.val_in_submap(0.25, 0.25, 0.75) == 1.0);
+    // every submap should be filled at this point
+    REQUIRE(n_initialized_submaps(map, std::pow(map_size/map_res, 3)));
 }
 
 TEST_CASE("Map", "[map]")

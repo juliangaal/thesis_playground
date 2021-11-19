@@ -51,31 +51,30 @@ public:
 
     const SubvoxelMap* at_index(int x, int y, int z) const
     {
-        int i = util::conv_3dindex_1dindex(x, y, z, w, d);
-        if (i > nelems)
+        if (not in_range(x, y, z))
         {
-            throw std::runtime_error(fmt::format("Map accessed @ {} with size {}", i, nelems).c_str());
+            throw std::runtime_error(fmt::format("Map accessed @ index ({}/{}/{}) with max index ({}/{]/{})", x, y, z, w, h, d).c_str());
         }
 
+        int i = util::conv_3dindex_1dindex(x, y, z, w, d);
         return map[i];
     }
 
     const SubvoxelMap* at_point(double x, double y, double z) const
     {
-        int i = util::conv_3dpoint_1dindex(x, y, z, map_res, w, d);
-        if (i > nelems || x < 0 || x >= map_size || y < 0 || y >= map_size || z < 0 || z >= map_size)
+        if (not in_range(x, y, z))
         {
-            throw std::runtime_error(fmt::format("Map accessed with ({}/{}/{}) @ map[{}] with {} elements and map size {}", x, y, z, i, nelems, map_size).c_str());
+            throw std::runtime_error(fmt::format("Map accessed with ({}/{}/{}) elements and map size {}", x, y, z, map_size).c_str());
         }
 
+        int i = util::conv_3dpoint_1dindex(x, y, z, map_res, w, d);
         return map[i];
     }
 
-    double submap_at(double x, double y, double z) const
+    double val_in_submap(double x, double y, double z) const
     {
         auto* submap = at_point(x, y, z);
         util::Point<double> in_submap = to_submap_point(x, y, z);
-        util::Point<int> origin = util::conv_3dpoint_3dindex(x, y, z, map_res);
         return submap->at_point(in_submap.x, in_submap.y, in_submap.z);
     }
 
@@ -86,7 +85,7 @@ public:
 
     bool insert(double x, double y, double z, int val)
     {
-        if (!in_range(x, y, z))
+        if (not in_range(x, y, z))
         {
             return false;
         }
@@ -144,6 +143,11 @@ private:
         return x >= 0 && x < map_size && y >= 0 && y < map_size && z >= 0 && z < map_size;
     }
 
+    bool in_range(int x, int y, int z) const
+    {
+        return x >= 0 && x < w && y >= 0 && y < h && z >= 0 && z < d;
+    }
+
     void init_subvoxel_map(double x, double y, double z)
     {
         int subvoxel_elems_per_dim = static_cast<int>(map_res / subvoxel_res);
@@ -164,10 +168,23 @@ private:
         return at_point(x, y, z) == nullptr;
     }
 
+    /**
+     * Convert Point in 3d map coord. system into 3d point in submap coord. system
+     *
+     * "origin_idx" describes the origin in map index space and its respective idx of the submap that was just created
+     *
+     * To calculate the actual value that will be written into submap, we must convert "origin_idx" into map coord. space
+     * -> origin_idx * map_res
+     *
+     * @param x x coord of point in 3d map coord system
+     * @param y y coord of point in 3d map coord system
+     * @param z z coord of point in 3d map coord system
+     * @return point in submap coord. system
+     */
     util::Point<double> to_submap_point(double x, double y, double z) const
     {
-        util::Point<int> origin = util::conv_3dpoint_3dindex(x, y, z, map_res);
-        return {x - origin.x, y - origin.y, z - origin.z};
+        util::Point<int> origin_idx = util::conv_3dpoint_3dindex(x, y, z, map_res);
+        return {x - origin_idx.x * map_res, y - origin_idx.y * map_res, z - origin_idx.z * map_res};
     }
 };
 

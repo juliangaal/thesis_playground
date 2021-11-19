@@ -12,7 +12,7 @@ class SubvoxelMap
 {
 public:
     SubvoxelMap(int w, int h, int d, double res, int map_size)
-    : w(w), h(h), d(d), map(new double[h * w * d]), res(res), size(w * h * d), map_size(map_size)
+    : w(w), h(h), d(d), map(new double[h * w * d]), res(res), map_size(map_size)
     {
         assert(w > res);
         init_map();
@@ -24,7 +24,6 @@ public:
     , d(static_cast<int>(map_size / res))
     , map(new double[h * w * d])
     , res(res)
-    , size(h * d * w)
     , map_size(map_size)
     {
         assert(w > res);
@@ -51,7 +50,7 @@ public:
     {
         if (!in_range(x, y, z))
         {
-            throw std::runtime_error(fmt::format("Accessing subvoxelmap @ invalid location: accessed @ ({}/{}/{}) with size {}\n", x, y, z, size));
+            throw std::runtime_error(fmt::format("Accessing subvoxelmap @ invalid location: accessed @ ({}/{}/{}) with size {}\n", x, y, z, _size()));
         }
         int i = util::conv_3dindex_1dindex(x, y, z, w, d);
         return map[i];
@@ -63,7 +62,7 @@ public:
         util::Point<int> _3dindex = util::conv_3dpoint_3dindex(x, y, z, res);
         if (!in_range(_3dindex.x, _3dindex.y, _3dindex.z))
         {
-            throw std::runtime_error(fmt::format("Accessing subvoxelmap @ invalid location: accessed @ ({}/{}/{}) with size {}\n", x, y, z, size));
+            throw std::runtime_error(fmt::format("Accessing subvoxelmap @ invalid location: accessed @ ({}/{}/{}) with size {}\n", x, y, z, _size()));
         }
         int i = util::conv_3dindex_1dindex(_3dindex.x, _3dindex.y, _3dindex.z, w, d);
         map[i] = val;
@@ -76,7 +75,7 @@ public:
 
     int _size() const
     {
-        return size;
+        return h * w * d;
     }
 
     int _map_size() const
@@ -120,7 +119,6 @@ private:
     int d;
     double *map;
     double res;
-    int size;
     int map_size;
 };
 
