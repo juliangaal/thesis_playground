@@ -16,10 +16,16 @@ catkin_package(
     DEPENDS roscpp
 )
 
-add_executable(subvoxelmap src/main.cpp)
-target_compile_options(subvoxelmap PRIVATE -Wall -Weffc++)
-target_include_directories(subvoxelmap PRIVATE ${fmt_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS} include)
-target_link_libraries(subvoxelmap PRIVATE fmt::fmt ${catkin_LIBRARIES})
+add_executable(rviz_test src/rviz_test.cpp)
+target_compile_options(rviz_test PRIVATE -Wall -Weffc++)
+target_include_directories(rviz_test PRIVATE ${fmt_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS} include)
+target_link_libraries(rviz_test PRIVATE fmt::fmt ${catkin_LIBRARIES})
+
+add_subdirectory(ext/HighFive)
+add_executable(tsdf_rviz src/tsdf_rviz.cpp)
+target_compile_options(tsdf_rviz PRIVATE -Wall -Weffc++)
+target_include_directories(tsdf_rviz PRIVATE ${fmt_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS} include)
+target_link_libraries(tsdf_rviz PRIVATE fmt::fmt ${catkin_LIBRARIES} HighFive)
 
 add_executable(subvoxelmap_test src/test.cpp)
 target_include_directories(subvoxelmap_test PRIVATE ${Catch2_INCLUDE_DIRS} ${catkin_INCLUDE_DIRS} include)
