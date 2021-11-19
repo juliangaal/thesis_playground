@@ -100,7 +100,7 @@ void publish_map(const map::Map& map, ros::Publisher& pub)
 
 int main(int argc, char** argv)
 {
-    ros::init(argc, argv, "subvoxelmap");
+    ros::init(argc, argv, "rviz_test");
     ros::NodeHandle nh;
     subvoxelmap::Parameters params(nh);
     map::Map map(params);

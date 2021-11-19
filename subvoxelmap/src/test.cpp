@@ -178,19 +178,50 @@ void test_map(map::Map& map, int map_size, double map_res, double subvoxel_res)
 
     REQUIRE(map.insert(0.25, 0.25, 0.75, 1.0));
     REQUIRE(map.val_in_submap(0.25, 0.25, 0.75) == 1.0);
-    // every submap should be filled at this point
-    REQUIRE(n_initialized_submaps(map, std::pow(map_size/map_res, 3)));
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+
+    REQUIRE(map.insert(-0.25, -0.25, -0.25, 1.0));
+    REQUIRE(map.val_in_submap(-0.25, -0.25, -0.25) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+
+    REQUIRE(map.insert(-0.25,- 0.75, -0.75, 1.0));
+    REQUIRE(map.val_in_submap(-0.25, -0.75, -0.75) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+
+    REQUIRE(map.insert(-0.75, -0.25, -0.75, 1.0));
+    REQUIRE(map.val_in_submap(-0.75, -0.25, -0.75) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+
+    REQUIRE(map.insert(-0.75, -0.75, -0.25, 1.0));
+    REQUIRE(map.val_in_submap(-0.75, -0.75, -0.25) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+
+    REQUIRE(map.insert(-0.75, -0.75, -0.75, 1.0));
+    REQUIRE(map.val_in_submap(-0.75, -0.75, -0.75) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+
+    REQUIRE(map.insert(-0.75, -0.25, -0.25, 1.0));
+    REQUIRE(map.val_in_submap(-0.75, -0.25, -0.25) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+
+    REQUIRE(map.insert(-0.25, -0.75, -0.25, 1.0));
+    REQUIRE(map.val_in_submap(-0.25, -0.75, -0.25) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+
+    REQUIRE(map.insert(-0.25, -0.25, -0.75, 1.0));
+    REQUIRE(map.val_in_submap(-0.25, -0.25, -0.75) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
 }
 
 TEST_CASE("Map", "[map]")
 {
-    int map_size = 1;
+    int map_size = 2;
     double map_res = 0.5;
     double subvoxel_res = 0.25;
 
     // Test both constructors
     {
-        subvoxelmap::Parameters params(1, 0.5, 0.1);
+        subvoxelmap::Parameters params(map_size, map_res, subvoxel_res);
         map::Map map(params);
         test_map(map, params.map_size, params.map_res, params.subvoxel_res);
     }

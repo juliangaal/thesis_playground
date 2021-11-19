@@ -25,6 +25,7 @@ public:
     , nelems(h * w * d)
     , map(new SubvoxelMap*[h * w * d])
     , subvoxel_res(subvoxel_res)
+    , offset(map_size/2.0)
     {
         init_map();
     }
@@ -60,8 +61,9 @@ public:
         return map[i];
     }
 
-    const SubvoxelMap* at_point(double x, double y, double z) const
+    const SubvoxelMap* at_point(double& x, double& y, double& z) const
     {
+        apply_offset(x, y, z);
         if (not in_range(x, y, z))
         {
             throw std::runtime_error(fmt::format("Map accessed with ({}/{}/{}) elements and map size {}", x, y, z, map_size).c_str());
@@ -85,6 +87,7 @@ public:
 
     bool insert(double x, double y, double z, int val)
     {
+        apply_offset(x, y, z);
         if (not in_range(x, y, z))
         {
             return false;
@@ -93,12 +96,8 @@ public:
         if (submap_unititialized(x, y, z))
         {
             init_subvoxel_map(x, y, z);
-            assert(map[util::conv_3dpoint_1dindex(x, y, z, map_res, w, d)] != nullptr);
         }
 
-        util::Point<double> submap_p = to_submap_point(x, y, z);
-        auto* subvoxelmap = map[util::conv_3dpoint_1dindex(x, y, z, map_res, w, d)];
-        util::Point<int> _3dindex = util::conv_3dpoint_3dindex(x, y, z, map_res);
         insert_into_subvoxel_map(x, y, z, val);
         return true;
     }
@@ -132,6 +131,7 @@ private:
     int nelems;
     SubvoxelMap** map;
     double subvoxel_res;
+    double offset;
 
     void init_map()
     {
@@ -148,24 +148,30 @@ private:
         return x >= 0 && x < w && y >= 0 && y < h && z >= 0 && z < d;
     }
 
+    void apply_offset(double &x, double &y, double &z) const
+    {
+        x += offset;
+        y += offset;
+        z += offset;
+    }
+
     void init_subvoxel_map(double x, double y, double z)
     {
         int subvoxel_elems_per_dim = static_cast<int>(map_res / subvoxel_res);
         map[util::conv_3dpoint_1dindex(x, y, z, map_res, w, d)] = new SubvoxelMap(subvoxel_elems_per_dim, subvoxel_elems_per_dim, subvoxel_elems_per_dim, subvoxel_res, map_res);
-        assert(map[util::conv_3dpoint_1dindex(x, y, z, map_res, w, d)] != nullptr);
     }
 
     void insert_into_subvoxel_map(double x, double y, double z, double val)
     {
         auto* subvoxelmap = map[util::conv_3dpoint_1dindex(x, y, z, map_res, w, d)];
-
         util::Point<double> submap_p = to_submap_point(x, y, z);
         subvoxelmap->insert(submap_p.x, submap_p.y, submap_p.z, val);
     }
 
     bool submap_unititialized(double x, double y, double z) const
     {
-        return at_point(x, y, z) == nullptr;
+        int i = util::conv_3dpoint_1dindex(x, y, z, map_res, w, d);
+        return map[i] == nullptr;
     }
 
     /**

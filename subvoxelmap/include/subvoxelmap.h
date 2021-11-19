@@ -106,7 +106,7 @@ public:
 private:
     void init_map()
     {
-        std::fill_n(map, h * w * d, NAN);
+        std::fill_n(map, _size(), NAN);
     }
 
     bool in_range(int x, int y, int z) const
