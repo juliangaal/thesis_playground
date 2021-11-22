@@ -1,0 +1,3 @@
+[submodule "subvoxelmap/ext/HighFive"]
+	path = subvoxelmap/ext/HighFive
+	url = git@github.com:BlueBrain/HighFive.git

@@ -1,0 +1,6 @@
+<launch>
+    <!-- Parameters -->
+    <rosparam file="$(find subvoxelmap)/config/params.yaml" command="load" />
+    <!-- start pizza_filter -->
+    <node name="subvoxelmap" pkg="subvoxelmap" type="subvoxelmap" output="screen"/>
+</launch>

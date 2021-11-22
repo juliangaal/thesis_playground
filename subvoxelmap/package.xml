@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<package format="2">
+  <name>subvoxelmap</name>
+  <version>0.0.0</version>
+  <description>The subvoxelmap package</description>
+  <maintainer email="julian@todo.todo">julian</maintainer>
+  <license>TODO</license>
+  <buildtool_depend>catkin</buildtool_depend>
+  <build_depend>roscpp</build_depend>
+  <build_depend>sensor_msgs</build_depend>
+  <build_depend>visualization_msgs</build_depend>
+  <build_export_depend>roscpp</build_export_depend>
+  <build_export_depend>sensor_msgs</build_export_depend>
+  <build_export_depend>visualization_msgs</build_export_depend>
+  <exec_depend>roscpp</exec_depend>
+  <exec_depend>sensor_msgs</exec_depend>
+  <exec_depend>visualization_msgs</exec_depend>
+</package>
