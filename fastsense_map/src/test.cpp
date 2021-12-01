@@ -4,6 +4,7 @@
  */
 
 #include "local_map.h"
+#include "subvoxelmap/map.h"
 #include <catch2/catch_test_macros.hpp>
 #include <fmt/printf.h>
 
@@ -13,9 +14,213 @@ using Eigen::Vector3i;
 constexpr int DEFAULT_VALUE = 4;
 constexpr int DEFAULT_WEIGHT = 6;
 
-TEST_CASE("Map", "[Map]")
+TEST_CASE("Subvoxelamp", "[subvoxelmap]")
 {
-    fmt::print("Testing Map");
+    double epsilon = 0.0001;
+    double res = 1.0;
+    int map_size = 4;
+    map::SubvoxelMap<double> map(4, 1, NAN);
+    
+    // Test Initialization
+    REQUIRE(map._res() == res);
+    REQUIRE(map._size() == map._h() * map._w() * map._d());
+    REQUIRE(map._map_size() == map_size);
+    REQUIRE(map._h() == static_cast<int>(map_size / res));
+    REQUIRE(map._w() == static_cast<int>(map_size / res));
+    REQUIRE(map._d() == static_cast<int>(map_size / res));
+    
+    for (int x = 0; x < map._h(); ++x)
+    {
+        for (int y = 0; y < map._w(); ++y)
+        {
+            for (int z = 0; z < map._d(); ++z)
+            {
+                REQUIRE(std::isnan(map.at_index(x, y, z)));
+            }
+        }
+    }
+    
+    // Test at limits (int)
+    REQUIRE_THROWS(map.at_index(-1, 0, 0));
+    REQUIRE_THROWS(map.at_index(0, -1, 0));
+    REQUIRE_THROWS(map.at_index(0, 0, -1));
+    REQUIRE_THROWS(map.at_index(map_size, 0, 0));
+    REQUIRE_THROWS(map.at_index(0, map_size, 0));
+    REQUIRE_THROWS(map.at_index(0, 0, map_size));
+    
+    // Test at limits (double)
+    REQUIRE_THROWS(map.at_point(-1.0, 0.0, 0.0));
+    REQUIRE_THROWS(map.at_point(0.0, -1.0, 0.0));
+    REQUIRE_THROWS(map.at_point(0.0, 0.0, -1.0));
+    REQUIRE_THROWS(map.at_point(static_cast<double>(map_size), 0.0, 0.0));
+    REQUIRE_THROWS(map.at_point(0.0, static_cast<double>(map_size), 0.0));
+    REQUIRE_THROWS(map.at_point(0.0, 0.0, static_cast<double>(map_size)));
+    
+    // Test insert and borders of inserted cube
+    // insert at (0, 0, 0)
+    map.insert(0, 0, 0, 3.0);
+    REQUIRE(map.at_index(0, 0, 0) == 3.0);
+    REQUIRE(map.at_point(0.0, 0.0, 0.0) == 3.0);
+    REQUIRE(std::isnan(map.at_point(res, res, res)));
+    REQUIRE(map.at_point(res-epsilon, res-epsilon, res-epsilon) == 3);
+    
+    REQUIRE_THROWS(map.insert(-1, 0, 0, 8));
+    REQUIRE_THROWS(map.insert(0, -1, 0, 8));
+    REQUIRE_THROWS(map.insert(0, 0, -1, 8));
+    REQUIRE_THROWS(map.insert(map_size, 0, 0, 8));
+    REQUIRE_THROWS(map.insert(0, map_size, 0, 8));
+    REQUIRE_THROWS(map.insert(0, 0, map_size, 8));
+    
+    map.insert(1, 1, 1, 6.0);
+    REQUIRE(map.at_index(1, 1, 1) == 6.0);
+    REQUIRE(map.at_point(1.0, 1.0, 1.0) == 6.0);
+    REQUIRE(std::isnan(map.at_point(1.0 + res, 1.0 + res, 1.0 + res)));
+    REQUIRE(map.at_point(1.0 + res -epsilon, 1.0 + res-epsilon, 1.0 + res - epsilon) == 6.0);
+    
+    // Test clearing
+    map.clear();
+    for (int x = 0; x < map._h(); ++x)
+    {
+        for (int y = 0; y < map._w(); ++y)
+        {
+            for (int z = 0; z < map._d(); ++z)
+            {
+                REQUIRE(std::isnan(map.at_index(x, y, z)));
+            }
+        }
+    }
+}
+
+template <typename T>
+bool n_initialized_submaps(map::Map<T>& map, int n)
+{
+    int counter = 0;
+    for (int x = 0; x < map._h(); ++x)
+    {
+        for (int y = 0; y < map._w(); ++y)
+        {
+            for (int z = 0; z < map._d(); ++z)
+            {
+                if (map.at_index(x, y, z) != nullptr)
+                {
+                    ++counter;
+                }
+            }
+        }
+    }
+    
+    return counter == n;
+}
+
+template <typename T>
+void test_map(map::Map<T>& map, int map_size, double map_res, double subvoxel_res)
+{
+    // Test Initialization
+    REQUIRE(map._h() == static_cast<int>(map_size/map_res));
+    REQUIRE(map._w() == static_cast<int>(map_size/map_res));
+    REQUIRE(map._d() == static_cast<int>(map_size/map_res));
+    REQUIRE(map._map_res() == map_res);
+    
+    for (int x = 0; x < map._h(); ++x)
+    {
+        for (int y = 0; y < map._w(); ++y)
+        {
+            for (int z = 0; z < map._d(); ++z)
+            {
+                REQUIRE(map.at_index(x, y, z) == nullptr);
+            }
+        }
+    }
+    
+    // Test insertion
+    REQUIRE_FALSE(map.insert(map_size, 0, 0, 1));
+    REQUIRE_FALSE(map.insert(0, map_size, 0, 1));
+    REQUIRE_FALSE(map.insert(0, 0, map_size, 1));
+    REQUIRE_FALSE(map.insert(-map_size, 0, 0, 1));
+    REQUIRE_FALSE(map.insert(0, -map_size, 0, 1));
+    REQUIRE_FALSE(map.insert(0, 0, -map_size, 1));
+    
+    int submaps_intialized = 0;
+    
+    REQUIRE(map.insert(0.25, 0.25, 0.25, 1.0));
+    REQUIRE(map.val_in_submap(0.25, 0.25, 0.25) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+    
+    REQUIRE(map.insert(0.25, 0.75, 0.75, 1.0));
+    REQUIRE(map.val_in_submap(0.25, 0.75, 0.75) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+    
+    REQUIRE(map.insert(0.75, 0.25, 0.75, 1.0));
+    REQUIRE(map.val_in_submap(0.75, 0.25, 0.75) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+    
+    REQUIRE(map.insert(0.75, 0.75, 0.25, 1.0));
+    REQUIRE(map.val_in_submap(0.75, 0.75, 0.25) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+    
+    REQUIRE(map.insert(0.75, 0.75, 0.75, 1.0));
+    REQUIRE(map.val_in_submap(0.75, 0.75, 0.75) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+    
+    REQUIRE(map.insert(0.75, 0.25, 0.25, 1.0));
+    REQUIRE(map.val_in_submap(0.75, 0.25, 0.25) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+    
+    REQUIRE(map.insert(0.25, 0.75, 0.25, 1.0));
+    REQUIRE(map.val_in_submap(0.25, 0.75, 0.25) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+    
+    REQUIRE(map.insert(0.25, 0.25, 0.75, 1.0));
+    REQUIRE(map.val_in_submap(0.25, 0.25, 0.75) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+    
+    REQUIRE(map.insert(-0.25, -0.25, -0.25, 1.0));
+    REQUIRE(map.val_in_submap(-0.25, -0.25, -0.25) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+    
+    REQUIRE(map.insert(-0.25,- 0.75, -0.75, 1.0));
+    REQUIRE(map.val_in_submap(-0.25, -0.75, -0.75) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+    
+    REQUIRE(map.insert(-0.75, -0.25, -0.75, 1.0));
+    REQUIRE(map.val_in_submap(-0.75, -0.25, -0.75) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+    
+    REQUIRE(map.insert(-0.75, -0.75, -0.25, 1.0));
+    REQUIRE(map.val_in_submap(-0.75, -0.75, -0.25) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+    
+    REQUIRE(map.insert(-0.75, -0.75, -0.75, 1.0));
+    REQUIRE(map.val_in_submap(-0.75, -0.75, -0.75) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+    
+    REQUIRE(map.insert(-0.75, -0.25, -0.25, 1.0));
+    REQUIRE(map.val_in_submap(-0.75, -0.25, -0.25) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+    
+    REQUIRE(map.insert(-0.25, -0.75, -0.25, 1.0));
+    REQUIRE(map.val_in_submap(-0.25, -0.75, -0.25) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+    
+    REQUIRE(map.insert(-0.25, -0.25, -0.75, 1.0));
+    REQUIRE(map.val_in_submap(-0.25, -0.25, -0.75) == 1.0);
+    REQUIRE(n_initialized_submaps(map, ++submaps_intialized));
+}
+
+TEST_CASE("Map", "[map]")
+{
+    int map_size = 2;
+    double map_res = 0.5;
+    double subvoxel_res = 0.25;
+    
+    {
+        map::Map<double> map(map_size, map_res, subvoxel_res, NAN);
+        test_map(map, map_size, map_res, subvoxel_res);
+    }
+}
+
+TEST_CASE("FastSenseMap", "[FastSenseMap]")
+{
     std::shared_ptr<GlobalMap> gm_ptr = std::make_shared<GlobalMap>("MapTest.h5", DEFAULT_VALUE, DEFAULT_WEIGHT);
     LocalMap localMap{5, 5, 5, gm_ptr};
     

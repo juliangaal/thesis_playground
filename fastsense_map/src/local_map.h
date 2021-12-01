@@ -66,7 +66,7 @@ public:
      * Destructor of the local map.
      * Deletes the array in particular.
      */
-    ~LocalMap() = default;
+    ~LocalMap();
 
     /**
      * Copy constructor of the local map.

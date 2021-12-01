@@ -8,23 +8,25 @@
 namespace map
 {
 
+template <typename T>
 class SubvoxelMap
 {
 public:
-    SubvoxelMap(int w, int h, int d, double res, int map_size)
-    : w(w), h(h), d(d), map(new double[h * w * d]), res(res), map_size(map_size)
+    SubvoxelMap(int w, int h, int d, double res, int map_size, T default_value)
+    : w(w), h(h), d(d), map(new T[h * w * d]), res(res), map_size(map_size), default_value(default_value)
     {
         assert(w > res);
         init_map();
     }
 
-    SubvoxelMap(int map_size, double res)
+    SubvoxelMap(int map_size, double res, T default_value)
     : w(static_cast<int>(map_size / res))
     , h(static_cast<int>(map_size / res))
     , d(static_cast<int>(map_size / res))
-    , map(new double[h * w * d])
+    , map(new T[h * w * d])
     , res(res)
     , map_size(map_size)
+    , default_value(default_value)
     {
         assert(w > res);
         init_map();
@@ -57,7 +59,7 @@ public:
     }
 
     // TODO auslagern
-    void insert(double x, double y, double z, double val)
+    void insert(double x, double y, double z, T val)
     {
         util::Point<int> _3dindex = util::conv_3dpoint_3dindex(x, y, z, res);
         if (!in_range(_3dindex.x, _3dindex.y, _3dindex.z))
@@ -106,7 +108,7 @@ public:
 private:
     void init_map()
     {
-        std::fill_n(map, _size(), NAN);
+        std::fill_n(map, _size(), default_value);
     }
 
     bool in_range(int x, int y, int z) const
@@ -117,9 +119,10 @@ private:
     int w;
     int h;
     int d;
-    double *map;
+    T *map;
     double res;
     int map_size;
+    T default_value;
 };
 
 } // end namespace map

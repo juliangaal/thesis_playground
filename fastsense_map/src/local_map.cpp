@@ -228,4 +228,9 @@ void LocalMap::write_back()
     map_->write_back();
 }
 
+LocalMap::~LocalMap()
+{
+    delete[] data_;
+}
+
 } // namespace fastsense::map

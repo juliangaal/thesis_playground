@@ -2,28 +2,24 @@
 
 #include "util.h"
 #include "subvoxelmap.h"
-#include "parameters.h"
 #include <fmt/printf.h>
 #include <cassert>
 
 namespace map
 {
 
+template <typename T>
 class Map
 {
 public:
-    explicit Map(const subvoxelmap::Parameters& params)
-    : Map(params.map_size, params.map_res, params.subvoxel_res)
-    {}
-
-    Map(int map_size, double map_res, double subvoxel_res)
+    Map(int map_size, double map_res, double subvoxel_res, T default_subvoxel_val)
     : map_size(map_size)
     , map_res(map_res)
     , h(static_cast<int>(map_size/map_res))
     , w(static_cast<int>(map_size/map_res))
     , d(static_cast<int>(map_size/map_res))
     , nelems(h * w * d)
-    , map(new SubvoxelMap*[h * w * d])
+    , map(new SubvoxelMap<T>*[h * w * d])
     , subvoxel_res(subvoxel_res)
     , offset(map_size/2.0)
     {
@@ -45,12 +41,12 @@ public:
        throw std::runtime_error("NOT IMPLEMENTED");
     }
 
-    Map& operator=(const Map&) = delete;
-    Map& operator=(Map&&) = delete;
-    Map(const map::Map&) = delete;
-    Map(Map&&) = delete;
+    Map& operator=(const Map<T>&) = delete;
+    Map& operator=(Map<T>&&) = delete;
+    Map(const map::Map<T>&) = delete;
+    Map(Map<T>&&) = delete;
 
-    const SubvoxelMap* at_index(int x, int y, int z) const
+    const SubvoxelMap<T>* at_index(int x, int y, int z) const
     {
         if (not in_range(x, y, z))
         {
@@ -61,7 +57,7 @@ public:
         return map[i];
     }
 
-    const SubvoxelMap* at_point(double& x, double& y, double& z) const
+    const SubvoxelMap<T>* at_point(double& x, double& y, double& z) const
     {
         apply_offset(x, y, z);
         if (not in_range(x, y, z))
@@ -80,7 +76,7 @@ public:
         return submap->at_point(in_submap.x, in_submap.y, in_submap.z);
     }
 
-    const SubvoxelMap* at(int i) const
+    const SubvoxelMap<T>* at(int i) const
     {
         return at_index(i % w, (i / w) % h, i / (w * h));
     }
@@ -129,9 +125,10 @@ private:
     int w;
     int d;
     int nelems;
-    SubvoxelMap** map;
+    SubvoxelMap<T>** map;
     double subvoxel_res;
     double offset;
+    T default_subvoxel_val;
 
     void init_map()
     {
@@ -158,7 +155,7 @@ private:
     void init_subvoxel_map(double x, double y, double z)
     {
         int subvoxel_elems_per_dim = static_cast<int>(map_res / subvoxel_res);
-        map[util::conv_3dpoint_1dindex(x, y, z, map_res, w, d)] = new SubvoxelMap(subvoxel_elems_per_dim, subvoxel_elems_per_dim, subvoxel_elems_per_dim, subvoxel_res, map_res);
+        map[util::conv_3dpoint_1dindex(x, y, z, map_res, w, d)] = new SubvoxelMap<T>(subvoxel_elems_per_dim, subvoxel_elems_per_dim, subvoxel_elems_per_dim, subvoxel_res, map_res, default_subvoxel_val);
     }
 
     void insert_into_subvoxel_map(double x, double y, double z, double val)
