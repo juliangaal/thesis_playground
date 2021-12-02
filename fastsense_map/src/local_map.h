@@ -7,6 +7,7 @@
  */
 
 #include "global_map.h"
+//#include "
 
 namespace fastsense::map
 {
@@ -274,7 +275,7 @@ private:
      * @param point the Point
      * @return int the index in data_
      */
-    inline int get_index(const Vector3i& point) const
+    inline int get_index_of_point(const Vector3i& point) const
     {
         Vector3i p = point - pos_ + offset_ + size_;
         return (p.x() % size_.x()) * size_.y() * size_.z() +
@@ -290,7 +291,9 @@ private:
      */
     inline TSDFEntry& value_unchecked(const Vector3i& p)
     {
-        return data_[get_index(p)];
+        static TSDFEntry default_value(4, 6);
+//        if ()
+        return data_[get_index_of_point(p)];
     }
 
     /**
@@ -301,7 +304,7 @@ private:
      */
     inline const TSDFEntry& value_unchecked(const Vector3i& p) const
     {
-        return data_[get_index(p)];
+        return data_[get_index_of_point(p)];
     }
     
     inline void init_data()

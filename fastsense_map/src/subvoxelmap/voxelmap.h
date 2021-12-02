@@ -9,10 +9,10 @@ namespace map
 {
 
 template <typename T>
-class Map
+class VoxelMap
 {
 public:
-    Map(int map_size, double map_res, double subvoxel_res, T default_subvoxel_val)
+    VoxelMap(int map_size, double map_res, double subvoxel_res, T default_subvoxel_val)
     : map_size(map_size)
     , map_res(map_res)
     , h(static_cast<int>(map_size/map_res))
@@ -22,11 +22,12 @@ public:
     , map(new SubvoxelMap<T>*[h * w * d])
     , subvoxel_res(subvoxel_res)
     , offset(map_size/2.0)
+    , default_subvoxel_val(default_subvoxel_val)
     {
         init_map();
     }
 
-    ~Map()
+    ~VoxelMap()
     {
         for (int i = 0; i < h * w * d; ++i)
         {
@@ -41,14 +42,14 @@ public:
        throw std::runtime_error("NOT IMPLEMENTED");
     }
 
-    Map& operator=(const Map<T>&) = delete;
-    Map& operator=(Map<T>&&) = delete;
-    Map(const map::Map<T>&) = delete;
-    Map(Map<T>&&) = delete;
+    VoxelMap& operator=(const VoxelMap<T>&) = delete;
+    VoxelMap& operator=(VoxelMap<T>&&) = delete;
+    VoxelMap(const map::VoxelMap<T>&) = delete;
+    VoxelMap(VoxelMap<T>&&) = delete;
 
-    const SubvoxelMap<T>* at_index(int x, int y, int z) const
+    const SubvoxelMap<T>* subvoxelmap_at_index(int x, int y, int z) const
     {
-        if (not in_range(x, y, z))
+        if (not index_in_range(x, y, z))
         {
             throw std::runtime_error(fmt::format("Map accessed @ index ({}/{}/{}) with max index ({}/{]/{})", x, y, z, w, h, d).c_str());
         }
@@ -57,10 +58,11 @@ public:
         return map[i];
     }
 
-    const SubvoxelMap<T>* at_point(double& x, double& y, double& z) const
+    template <typename F>
+    const SubvoxelMap<T>* subvoxelmap_at_point(F& x, F& y, F& z) const
     {
         apply_offset(x, y, z);
-        if (not in_range(x, y, z))
+        if (not index_in_range(x, y, z))
         {
             throw std::runtime_error(fmt::format("Map accessed with ({}/{}/{}) elements and map size {}", x, y, z, map_size).c_str());
         }
@@ -68,23 +70,31 @@ public:
         int i = util::conv_3dpoint_1dindex(x, y, z, map_res, w, d);
         return map[i];
     }
-
-    double val_in_submap(double x, double y, double z) const
+    
+    template <typename F>
+    T value_at(F x, F y, F z) const
     {
-        auto* submap = at_point(x, y, z);
+        auto* submap = subvoxelmap_at_point(x, y, z);
+        if (submap == nullptr)
+        {
+//            fmt::print("nullptr {} {}\n", default_subvoxel_val, default_subvoxel_val == NAN);
+//            fmt::print("nullptr");
+            return default_subvoxel_val;
+        }
         util::Point<double> in_submap = to_submap_point(x, y, z);
         return submap->at_point(in_submap.x, in_submap.y, in_submap.z);
     }
 
     const SubvoxelMap<T>* at(int i) const
     {
-        return at_index(i % w, (i / w) % h, i / (w * h));
+        return subvoxelmap_at_index(i % w, (i / w) % h, i / (w * h));
     }
 
-    bool insert(double x, double y, double z, int val)
+    template <typename F>
+    bool insert(F x, F y, F z, T val)
     {
         apply_offset(x, y, z);
-        if (not in_range(x, y, z))
+        if (not point_in_range(x, y, z))
         {
             return false;
         }
@@ -134,38 +144,43 @@ private:
     {
         std::fill_n(map, h * w * d, nullptr);
     }
-
-    bool in_range(double x, double y, double z) const
+    
+    template <typename F>
+    bool point_in_range(F x, F y, F z) const
     {
         return x >= 0 && x < map_size && y >= 0 && y < map_size && z >= 0 && z < map_size;
     }
 
-    bool in_range(int x, int y, int z) const
+    bool index_in_range(int x, int y, int z) const
     {
         return x >= 0 && x < w && y >= 0 && y < h && z >= 0 && z < d;
     }
-
-    void apply_offset(double &x, double &y, double &z) const
+    
+    template <typename F>
+    void apply_offset(F &x, F &y, F &z) const
     {
         x += offset;
         y += offset;
         z += offset;
     }
-
-    void init_subvoxel_map(double x, double y, double z)
+    
+    template <typename F>
+    void init_subvoxel_map(F x, F y, F z)
     {
         int subvoxel_elems_per_dim = static_cast<int>(map_res / subvoxel_res);
         map[util::conv_3dpoint_1dindex(x, y, z, map_res, w, d)] = new SubvoxelMap<T>(subvoxel_elems_per_dim, subvoxel_elems_per_dim, subvoxel_elems_per_dim, subvoxel_res, map_res, default_subvoxel_val);
     }
 
-    void insert_into_subvoxel_map(double x, double y, double z, double val)
+    template <typename F>
+    void insert_into_subvoxel_map(F x, F y, F z, T val)
     {
         auto* subvoxelmap = map[util::conv_3dpoint_1dindex(x, y, z, map_res, w, d)];
         util::Point<double> submap_p = to_submap_point(x, y, z);
         subvoxelmap->insert(submap_p.x, submap_p.y, submap_p.z, val);
     }
 
-    bool submap_unititialized(double x, double y, double z) const
+    template <typename F>
+    bool submap_unititialized(F x, F y, F z) const
     {
         int i = util::conv_3dpoint_1dindex(x, y, z, map_res, w, d);
         return map[i] == nullptr;
@@ -184,7 +199,8 @@ private:
      * @param z z coord of point in 3d map coord system
      * @return point in submap coord. system
      */
-    util::Point<double> to_submap_point(double x, double y, double z) const
+    template <typename F>
+    util::Point<double> to_submap_point(F x, F y, F z) const
     {
         util::Point<int> origin_idx = util::conv_3dpoint_3dindex(x, y, z, map_res);
         return {x - origin_idx.x * map_res, y - origin_idx.y * map_res, z - origin_idx.z * map_res};

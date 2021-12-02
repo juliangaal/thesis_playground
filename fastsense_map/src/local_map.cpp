@@ -6,7 +6,7 @@
 
 #include "local_map.h"
 
-#include <stdlib.h> // for abs
+#include <cstdlib> // for abs
 #include <stdexcept>
 
 //#include <util/logging/logger.h>

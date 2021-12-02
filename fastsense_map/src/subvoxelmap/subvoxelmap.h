@@ -41,14 +41,15 @@ public:
     SubvoxelMap& operator=(SubvoxelMap&&) = delete;
     SubvoxelMap(const SubvoxelMap&) = delete;
     SubvoxelMap(SubvoxelMap&&) = delete;
-
-    double at_point(double x, double y, double z) const
+    
+    template <typename F>
+    T at_point(F x, F y, F z) const
     {
         util::Point<int> _3dindex = util::conv_3dpoint_3dindex(x, y, z, res);
         return at_index(_3dindex.x, _3dindex.y, _3dindex.z);
     }
 
-    double at_index(int x, int y, int z) const
+    T at_index(int x, int y, int z) const
     {
         if (!in_range(x, y, z))
         {
@@ -59,7 +60,8 @@ public:
     }
 
     // TODO auslagern
-    void insert(double x, double y, double z, T val)
+    template <typename F>
+    void insert(F x, F y, F z, T val)
     {
         util::Point<int> _3dindex = util::conv_3dpoint_3dindex(x, y, z, res);
         if (!in_range(_3dindex.x, _3dindex.y, _3dindex.z))
