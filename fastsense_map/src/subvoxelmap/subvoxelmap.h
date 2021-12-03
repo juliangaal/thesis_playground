@@ -5,7 +5,7 @@
 #include <fmt/printf.h>
 #include <cassert>
 
-namespace map
+namespace voxelmap
 {
 
 template <typename T>

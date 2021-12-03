@@ -18,27 +18,27 @@ LocalMap::LocalMap(unsigned int sX, unsigned int sY, unsigned int sZ, const std:
     : size_{static_cast<int>(sX % 2 == 1 ? sX : sX + 1),
             static_cast<int>(sY % 2 == 1 ? sY : sY + 1),
             static_cast<int>(sZ % 2 == 1 ? sZ : sZ + 1)},
-      data_{new TSDFEntry[size_.x() * size_.y() * size_.z()]},
+      data_{static_cast<int>(sX), static_cast<double>(sX/10), static_cast<double>(sX/100), TSDFEntry(4, 6)},
       pos_{Vector3i::Zero()},
       offset_{size_ / 2},
       map_{map}
 {
-    init_data();
+//    init_data();
     
     if (sX % 2 == 0 || sY % 2 == 0 || sZ % 2 == 0)
     {
 //        fastsense::util::logging::Logger::warning("Changed LocalMap size from even (", sX, ", ", sY, ", ", sZ, ") to odd (", size_.x(), ", ", size_.y(), ", ", size_.z(), ")");
     }
-    auto default_entry = map_->get_value(Vector3i(0, 0, 0));
-    for (int i = 0; i < size_.x() * size_.y() * size_.z(); i++)
-    {
-        data_[i] = default_entry;
-    }
+//    auto default_entry = map_->get_value(Vector3i(0, 0, 0));
+//    for (int i = 0; i < size_.x() * size_.y() * size_.z(); i++)
+//    {
+//        data_[i] = default_entry;
+//    }
 }
 
 void LocalMap::swap(LocalMap& rhs)
 {
-    std::swap(this->data_,rhs.data_);
+//    std::swap(this->data_,rhs.data_);
     std::swap(this->size_, rhs.size_);
     std::swap(this->pos_, rhs.pos_);
     std::swap(this->offset_, rhs.offset_);
@@ -47,7 +47,7 @@ void LocalMap::swap(LocalMap& rhs)
 
 void LocalMap::fill_from(const LocalMap& rhs)
 {
-    std::copy(rhs.data_, rhs.data_ + size_.x() * size_.y() * size_.z(), this->data_);
+//    std::copy(rhs.data_, rhs.data_ + size_.x() * size_.y() * size_.z(), this->data_);
     this->size_ = rhs.size_;
     this->pos_ = rhs.pos_;
     this->offset_ = rhs.offset_;
@@ -230,7 +230,7 @@ void LocalMap::write_back()
 
 LocalMap::~LocalMap()
 {
-    delete[] data_;
+//    delete[] data_;
 }
 
 } // namespace fastsense::map

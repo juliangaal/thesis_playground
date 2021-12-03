@@ -5,7 +5,7 @@
 #include <fmt/printf.h>
 #include <cassert>
 
-namespace map
+namespace voxelmap
 {
 
 template <typename T>
@@ -44,7 +44,7 @@ public:
 
     VoxelMap& operator=(const VoxelMap<T>&) = delete;
     VoxelMap& operator=(VoxelMap<T>&&) = delete;
-    VoxelMap(const map::VoxelMap<T>&) = delete;
+    VoxelMap(const voxelmap::VoxelMap<T>&) = delete;
     VoxelMap(VoxelMap<T>&&) = delete;
 
     const SubvoxelMap<T>* subvoxelmap_at_index(int x, int y, int z) const

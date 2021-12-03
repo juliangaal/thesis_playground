@@ -7,7 +7,8 @@
  */
 
 #include "global_map.h"
-//#include "
+#include "subvoxelmap/voxelmap.h"
+#include "subvoxelmap/subvoxelmap.h"
 
 namespace fastsense::map
 {
@@ -29,7 +30,7 @@ private:
     Vector3i size_;
 
     /// Actual data of the local map.
-    TSDFEntry* data_;
+    voxelmap::VoxelMap<TSDFEntry> data_;
 
     /// Position (x, y, z) of the center of the cuboid in global coordinates.
     Vector3i pos_;
@@ -114,7 +115,7 @@ public:
      * @param z z-coordinate of the index in global coordinates
      * @return Value of the local map
      */
-    inline TSDFEntry& value(int x, int y, int z)
+    inline TSDFEntry value(int x, int y, int z)
     {
         return value(Vector3i(x, y, z));
     }
@@ -127,10 +128,10 @@ public:
      * @param z z-coordinate of the index in global coordinates
      * @return Value of the local map
      */
-    inline const TSDFEntry& value(int x, int y, int z) const
-    {
-        return value(Vector3i(x, y, z));
-    }
+//    inline const TSDFEntry value(int x, int y, int z)
+//    {
+//        return value(Vector3i(x, y, z));
+//    }
 
     /**
      * Returns a value from the local map per reference.
@@ -138,7 +139,7 @@ public:
      * @param p position of the index in global coordinates
      * @return value of the local map
      */
-    inline TSDFEntry& value(const Vector3i& p)
+    inline const TSDFEntry value(const Vector3i& p)
     {
         if (!in_bounds(p))
         {
@@ -153,14 +154,14 @@ public:
      * @param p position of the index in global coordinates
      * @return value of the local map
      */
-    inline const TSDFEntry& value(const Vector3i& p) const
-    {
-        if (!in_bounds(p))
-        {
-            throw std::out_of_range("Index out of bounds");
-        }
-        return value_unchecked(p);
-    }
+//    inline TSDFEntry value(const Vector3i& p)
+//    {
+//        if (!in_bounds(p))
+//        {
+//            throw std::out_of_range("Index out of bounds");
+//        }
+//        return value_unchecked(p);
+//    }
 
     /**
      * Returns the size of the local map
@@ -236,6 +237,12 @@ public:
      * Calls write_back of the global map to store the data in the file.
      */
     void write_back();
+    
+    template <typename T>
+    inline bool insert(int x, int y, int z, T val)
+    {
+        return data_.insert(x, y, z, val);
+    }
 
 private:
     /**
@@ -289,11 +296,10 @@ private:
      * @param p position of the index in global coordinates
      * @return value of the local map
      */
-    inline TSDFEntry& value_unchecked(const Vector3i& p)
+    inline TSDFEntry value_unchecked(const Vector3i& point)
     {
-        static TSDFEntry default_value(4, 6);
-//        if ()
-        return data_[get_index_of_point(p)];
+        Vector3i p = point - pos_ + offset_ + size_;
+        return data_.value_at(p.x(), p.y(), p.z());
     }
 
     /**
@@ -302,15 +308,15 @@ private:
      * @param p position of the index in global coordinates
      * @return value of the local map
      */
-    inline const TSDFEntry& value_unchecked(const Vector3i& p) const
-    {
-        return data_[get_index_of_point(p)];
-    }
-    
-    inline void init_data()
-    {
-        std::fill_n(data_, size_.x() * size_.y() * size_.z(), TSDFEntry(0, 0));
-    }
+//    inline const TSDFEntry& value_unchecked(const Vector3i& p) const
+//    {
+//        return data_[get_index_of_point(p)];
+//    }
+//
+//    inline void init_data()
+//    {
+//        std::fill_n(data_, size_.x() * size_.y() * size_.z(), TSDFEntry(0, 0));
+//    }
 };
 
 } // namespace fastsense::map

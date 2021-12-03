@@ -19,7 +19,7 @@ TEST_CASE("Subvoxelmap_double", "[subvoxelmap_double]")
     double epsilon = 0.0001;
     double res = 1.0;
     int map_size = 4;
-    map::SubvoxelMap<double> map(4, 1, NAN);
+    voxelmap::SubvoxelMap<double> map(4, 1, NAN);
     
     // Test Initialization
     REQUIRE(map._res() == res);
@@ -97,7 +97,7 @@ TEST_CASE("Subvoxelmap_TSDFEntry", "[subvoxelmap_tsdfentry]")
     double res = 1.0;
     int map_size = 4;
     TSDFEntry default_tsdf(DEFAULT_VALUE, DEFAULT_WEIGHT);
-    map::SubvoxelMap<TSDFEntry> map(4, 1, default_tsdf);
+    voxelmap::SubvoxelMap<TSDFEntry> map(4, 1, default_tsdf);
     
     // Test Initialization
     REQUIRE(map._res() == res);
@@ -170,7 +170,7 @@ TEST_CASE("Subvoxelmap_TSDFEntry", "[subvoxelmap_tsdfentry]")
 }
 
 template <typename T>
-bool n_initialized_submaps(map::VoxelMap<T>& map, int n)
+bool n_initialized_submaps(voxelmap::VoxelMap<T>& map, int n)
 {
     int counter = 0;
     for (int x = 0; x < map._h(); ++x)
@@ -191,7 +191,7 @@ bool n_initialized_submaps(map::VoxelMap<T>& map, int n)
 }
 
 template <typename T>
-void test_map(map::VoxelMap<T>& map, int map_size, double map_res, double subvoxel_res, T insertion_value)
+void test_map(voxelmap::VoxelMap<T>& map, int map_size, double map_res, double subvoxel_res, T insertion_value)
 {
     // Test Initialization
     REQUIRE(map._h() == static_cast<int>(map_size/map_res));
@@ -294,7 +294,7 @@ TEST_CASE("Map", "[map]")
     {
         double default_value = NAN;
         double insertion_value = 1.0;
-        map::VoxelMap<double> map(map_size, map_res, subvoxel_res, default_value);
+        voxelmap::VoxelMap<double> map(map_size, map_res, subvoxel_res, default_value);
         REQUIRE(std::isnan(map.value_at(0.25, 0.25, 0.25)));
         REQUIRE(std::isnan(map.value_at(0.25, 0.75, 0.75)));
         REQUIRE(std::isnan(map.value_at(0.75, 0.25, 0.75)));
@@ -317,7 +317,7 @@ TEST_CASE("Map", "[map]")
     {
         TSDFEntry default_value(DEFAULT_VALUE, DEFAULT_WEIGHT);
         TSDFEntry insertion_value(DEFAULT_VALUE+2, DEFAULT_WEIGHT+2);
-        map::VoxelMap<TSDFEntry> map(map_size, map_res, subvoxel_res, default_value);
+        voxelmap::VoxelMap<TSDFEntry> map(map_size, map_res, subvoxel_res, default_value);
         REQUIRE(map.value_at(0.25, 0.25, 0.25) == default_value);
         REQUIRE(map.value_at(0.25, 0.75, 0.75) == default_value);
         REQUIRE(map.value_at(0.75, 0.25, 0.75) == default_value);
@@ -372,12 +372,12 @@ TEST_CASE("FastSenseMap", "[FastSenseMap]")
     TSDFEntry p3(3, 2);
     TSDFEntry p4(4, 3);
     TSDFEntry p5(5, 5);
-    localMap.value(-2, 2, 0) = p0;
-    localMap.value(-1, 2, 0) = p1;
-    localMap.value(-2, 1, 0) = p2;
-    localMap.value(-1, 1, 0) = p3;
-    localMap.value(-2, 0, 0) = p4;
-    localMap.value(-1, 0, 0) = p5;
+    localMap.insert(-2, 2, 0, p0);
+    localMap.insert(-1, 2, 0, p1);
+    localMap.insert(-2, 1, 0, p2);
+    localMap.insert(-1, 1, 0, p3);
+    localMap.insert(-2, 0, 0, p4);
+    localMap.insert(-1, 0, 0, p5);
     
     // test getter
     CHECK(localMap.get_pos() == Vector3i(0, 0, 0));
