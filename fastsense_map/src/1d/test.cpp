@@ -10,77 +10,63 @@
 TEST_CASE("1d", "[1d]")
 {
     int default_value = -1;
-    LocalMap map(5, default_value);
-    for (int i = 0; i < map.size_; ++i)
-    {
-        REQUIRE(map.value(i) == default_value);
-    }
+    GlobalMap global_map(10);
+    fmt::print("initial global map: {}\n", fmt::join(global_map.data_, ", "));
     
-    // insert at coordinate 1 and 2
-    map.insert(1, 3);
-    map.insert(2, 4);
-    REQUIRE(map.value(1) == 3);
-    REQUIRE(map.value(2) == 4);
+    LocalMap local_map(5, default_value, global_map);
     
-    for (int i = 0; i < map.size_; ++i)
-    {
-        if (i == map.pos_)
-        {
-            fmt::print("{:02}(p) ", map.data_[i]);
-            continue;
-        }
-        fmt::print("{:02} ", map.data_[i]);
-    }
-    fmt::print("\n");
+    fmt::print("initial local map : {}\n", fmt::join(local_map.data_, ", "));
     
-    map.shift(1);
+    REQUIRE(local_map.value(-2) == -2);
+    REQUIRE(local_map.value(-1) == -1);
+    REQUIRE(local_map.value(0) == 0);
+    REQUIRE(local_map.value(1) == 1);
+    REQUIRE(local_map.value(2) == 2);
     
-    for (int i = 0; i < map.size_; ++i)
-    {
-        if (i == map.pos_)
-        {
-            fmt::print("{:02}(p) ", map.data_[i]);
-            continue;
-        }
-        fmt::print("{:02} ", map.data_[i]);
-    }
-    fmt::print("\n");
+    local_map.shift(1);
     
-    // after shift, same values
-    REQUIRE(map.value(1) == 3);
-    REQUIRE(map.value(2) == 4);
+    fmt::print("shift 1\n global map: {}\n local map: {}\n", fmt::join(global_map.data_, ", "), fmt::join(local_map.data_, ", "));
     
-    map.shift(2);
+    local_map.shift(2);
     
-    for (int i = 0; i < map.size_; ++i)
-    {
-        if (i == map.pos_)
-        {
-            fmt::print("{:02}(p) ", map.data_[i]);
-            continue;
-        }
-        fmt::print("{:02} ", map.data_[i]);
-    }
-    fmt::print("\n");
+    fmt::print("shift 2\n global map: {}\n local map: {}\n", fmt::join(global_map.data_, ", "), fmt::join(local_map.data_, ", "));
     
-    // after shift, same values
-    REQUIRE(map.value(1) == 3);
-    REQUIRE(map.value(2) == 4);
-    
-    map.shift(3);
-    
-    for (int i = offset; i < map.size_; ++i)
-    {
-        if (i == map.pos_)
-        {
-            fmt::print("{:02}(p) ", map.data_[i]);
-            continue;
-        }
-        fmt::print("{:02} ", map.data_[i]);
-    }
-    fmt::print("\n");
-    
-    // after shift, same values
-    REQUIRE(map.value(1) == 3);
-    REQUIRE(map.value(2) == 4);
+//
+//    // after shift, same values
+//    REQUIRE(local_map.value(1) == 3);
+////    REQUIRE(map.value(2) == 4);
+//
+//    local_map.shift(3);
+//
+//    for (int i = 0; i < local_map.size_; ++i)
+//    {
+//        if (i == local_map.offset_)
+//        {
+//            fmt::print("{:02}(p) ", local_map.data_[i]);
+//            continue;
+//        }
+//        fmt::print("{:02} ", local_map.data_[i]);
+//    }
+//    fmt::print("\n");
+//
+//    // after shift, same values
+//    REQUIRE(local_map.value(1) == 3);
+////    REQUIRE(map.value(2) == 4);
+//
+////    map.shift(3);
+////
+////    for (int i = 0; i < map.size_; ++i)
+////    {
+////        if (i == map.offset_)
+////        {
+////            fmt::print("{:02}(p) ", map.data_[i]);
+////            continue;
+////        }
+////        fmt::print("{:02} ", map.data_[i]);
+////    }
+////    fmt::print("\n");
+////
+//    // after shift, same values
+//    REQUIRE(local_map.value(1) == 3);
+////    REQUIRE(map.value(2) == 4);
 }
