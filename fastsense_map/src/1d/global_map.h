@@ -8,13 +8,14 @@
 #include <vector>
 #include <numeric>
 #include <stdexcept>
+#include <fmt/printf.h>
 
 struct GlobalMap
 {
     explicit GlobalMap(int size)
-    : data_(size)
-    , offset_(size/2)
-    , size_(size)
+    : data_(size+1)
+    , offset_((size+1)/2)
+    , size_(size+1)
     {
         std::iota(data_.begin(), data_.end(), -size/2);
     }
@@ -23,20 +24,25 @@ struct GlobalMap
     
     int at(int index) const
     {
-        if (index+offset_ > size_)
+        if (!in_bounds(index))
         {
-            throw std::out_of_range("Global Map Out of Range!");
+            throw std::out_of_range(fmt::format("Global Map Out of Range! {}", index));
         }
         return data_[index+offset_];
     }
     
     int& at(int index)
     {
-        if (index+offset_ > size_)
+        if (!in_bounds(index))
         {
-            throw std::out_of_range("Global Map Out of Range!");
+            throw std::out_of_range(fmt::format("Global Map Out of Range! {}", index));
         }
         return data_[index+offset_];
+    }
+
+    bool in_bounds(int index) const
+    {
+        return std::abs(index) <= size_/2;
     }
     
     std::vector<int> data_;

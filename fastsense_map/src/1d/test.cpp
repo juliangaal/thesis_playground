@@ -12,9 +12,14 @@ TEST_CASE("1d", "[1d]")
     int default_value = -1;
     GlobalMap global_map(10);
     fmt::print("initial global map: {}\n", fmt::join(global_map.data_, ", "));
-    
+
+    REQUIRE_THROWS(global_map.at(-6));
+    REQUIRE_THROWS(global_map.at(6));
+
     LocalMap local_map(5, default_value, global_map);
-    
+    // in this scenario, local map is filled with values that already exist
+    local_map.fill();
+
     fmt::print("initial local map : {}\n", fmt::join(local_map.data_, ", "));
 
     REQUIRE_THROWS(local_map.value(-3) == 3);
@@ -49,41 +54,15 @@ TEST_CASE("1d", "[1d]")
 
     fmt::print("shift 2\n global map: {}\n local map: {}\n", fmt::join(global_map.data_, ", "), fmt::join(local_map.data_, ", "));
     
-//
-//    // after shift, same values
-////    REQUIRE(map.value(2) == 4);
-//
-//    local_map.shift(3);
-//
-//    for (int i = 0; i < local_map.size_; ++i)
-//    {
-//        if (i == local_map.offset_)
-//        {
-//            fmt::print("{:02}(p) ", local_map.data_[i]);
-//            continue;
-//        }
-//        fmt::print("{:02} ", local_map.data_[i]);
-//    }
-//    fmt::print("\n");
-//
-//    // after shift, same values
-//    REQUIRE(local_map.value(1) == 3);
-////    REQUIRE(map.value(2) == 4);
-//
-////    map.shift(3);
-////
-////    for (int i = 0; i < map.size_; ++i)
-////    {
-////        if (i == map.offset_)
-////        {
-////            fmt::print("{:02}(p) ", map.data_[i]);
-////            continue;
-////        }
-////        fmt::print("{:02} ", map.data_[i]);
-////    }
-////    fmt::print("\n");
-////
-//    // after shift, same values
-//    REQUIRE(local_map.value(1) == 3);
-////    REQUIRE(map.value(2) == 4);
+    local_map.shift(3);
+
+    REQUIRE_THROWS(local_map.value(0) == 0);
+    REQUIRE(local_map.value(1) == 1);
+    REQUIRE(local_map.value(2) == 2);
+    REQUIRE(local_map.value(3) == 3);
+    REQUIRE(local_map.value(4) == 4);
+    REQUIRE(local_map.value(5) == 5);
+    REQUIRE_THROWS(local_map.value(6) == 0);
+
+    fmt::print("shift 2\n global map: {}\n local map: {}\n", fmt::join(global_map.data_, ", "), fmt::join(local_map.data_, ", "));
 }

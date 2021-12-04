@@ -19,12 +19,7 @@ struct LocalMap
         , default_value_(default_value)
         , global_map_(map)
     {
-        int j = 0;
-        for (int i = pos_ - offset_; i < pos_ + offset_ + 1; ++i)
-        {
-            data_[j++] = global_map_.at(i);
-        }
-//        std::fill_n(data_, size_, default_value_);
+        std::fill(data_.begin(), data_.end(), default_value);
     }
     
     ~LocalMap() = default;
@@ -48,6 +43,15 @@ struct LocalMap
     
         data_[get_index_of_point(x)] = val;
     }
+
+    void fill()
+    {
+        int j = 0;
+        for (int i = pos_ - offset_; i < pos_ + offset_ + 1; ++i)
+        {
+            data_[j++] = global_map_.at(i);
+        }
+    }
     
     void shift(int new_pos)
     {
@@ -70,12 +74,9 @@ struct LocalMap
         }
         save_area(start, end);
     
-//        fmt::print("--\nSHIFT\n save -> start: {}, end: {}\n", start, end);
-//        fmt::print("     pos: {},     offset: {} diff: {}\n", pos_, offset_, diff);
         pos_ += diff;
         offset_ = (offset_ + diff + size_) % size_;
-//        fmt::print(" new pos: {}, new offset: {}\n", pos_, offset_);
-    
+
         // Step #3: detect area to load
         // it is determined by pos and the amount of shift (diff)
         start = pos_ - size_ / 2;
@@ -93,13 +94,11 @@ struct LocalMap
             end = start - diff - 1;
         }
         load_area(start, end);
-//        fmt::print(" load -> start: {}, end: {}\n--\n", start, end);
-
     }
     
     void load_area(int start, int end)
     {
-        fmt::print("loading: ");
+        fmt::print(" loading: ");
         for (int i = start; i < end + 1; ++i)
         {
             fmt::print("{} ", i);
@@ -110,7 +109,7 @@ struct LocalMap
     
     void save_area(int start, int end)
     {
-        fmt::print("saving: ");
+        fmt::print(" saving: ");
         for (int i = start; i < end + 1; ++i)
         {
             fmt::print("{} ", i);
@@ -121,14 +120,6 @@ struct LocalMap
     
     inline int get_index_of_point(int point) const
     {
-//        if (point < pos_ - size_/2)
-//        {
-//        }
-        if (std::abs(point - pos_) > size_/2)
-        {
-            fmt::print("point {} pos_ {} offset_ {}\n", point, pos_, offset_);
-            throw std::out_of_range("this coordinate is out of range of local window");
-        }
         auto p = point - pos_ + offset_ + size_;
         return p % size_;
     }
@@ -140,7 +131,7 @@ struct LocalMap
     
     inline bool in_bounds(int x) const
     {
-        return x < size_;
+        return std::abs(x - pos_) <= size_ / 2;
     }
     
     /// length of local map, always odd so there is a middle cell
@@ -154,7 +145,8 @@ struct LocalMap
     
     /// offset from data(0) to pos
     int offset_;
-    
+
+    /// default value in localmap
     int default_value_;
     
     GlobalMap& global_map_;
