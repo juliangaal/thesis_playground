@@ -1,4 +1,5 @@
 #pragma once
+
 /**
   * @file GlobalMap.h
   * @author julian 

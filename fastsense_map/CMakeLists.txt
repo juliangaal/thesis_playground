@@ -30,7 +30,7 @@ FetchContent_MakeAvailable(HighFive)
 add_executable(fastsense_map_test src/test.cpp src/global_map.cpp src/local_map.cpp)
 target_include_directories(fastsense_map_test PRIVATE ${Eigen3_INCLUDE_DIRS} ${Catch2_INCLUDE_DIRS} src)
 target_link_libraries(fastsense_map_test PRIVATE Catch2::Catch2WithMain fmt::fmt HighFive)
-target_compile_options(fastsense_map_test PRIVATE -Wall -Weffc++)
+target_compile_options(fastsense_map_test PRIVATE -Wall -Weffc++ -Winitialized)
 
 add_executable(fastsense_map_1d src/1d/test.cpp)
 target_include_directories(fastsense_map_1d PRIVATE ${Eigen3_INCLUDE_DIRS} ${Catch2_INCLUDE_DIRS} src)
