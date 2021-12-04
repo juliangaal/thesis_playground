@@ -121,6 +121,14 @@ struct LocalMap
     
     inline int get_index_of_point(int point) const
     {
+//        if (point < pos_ - size_/2)
+//        {
+//        }
+        if (std::abs(point - pos_) > size_/2)
+        {
+            fmt::print("point {} pos_ {} offset_ {}\n", point, pos_, offset_);
+            throw std::out_of_range("this coordinate is out of range of local window");
+        }
         auto p = point - pos_ + offset_ + size_;
         return p % size_;
     }
