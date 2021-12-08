@@ -7,19 +7,19 @@
  */
  
 #include "global_map.h"
+#include "voxel_map.h"
 #include <fmt/printf.h>
 
 struct LocalMap
 {
     LocalMap(unsigned int size, int default_value, GlobalMap& map)
         : size_{static_cast<int>(size % 2 == 1 ? size : size + 1)}
-        , data_(size_)
+        , data_(size_, 1, 1, default_value)
         , pos_(0)
         , offset_(size_ / 2)
-        , default_value_(default_value)
         , global_map_(map)
     {
-        std::fill(data_.begin(), data_.end(), default_value);
+
     }
     
     ~LocalMap() = default;
@@ -40,16 +40,15 @@ struct LocalMap
         {
             throw std::out_of_range("Index out of bounds!");
         }
-    
-        data_[get_index_of_point(x)] = val;
+
+        data_.insert(get_index_of_point(x), val);
     }
 
     void fill()
     {
-        int j = 0;
         for (int i = pos_ - offset_; i < pos_ + offset_ + 1; ++i)
         {
-            data_[j++] = global_map_.at(i);
+            data_.insert(i, global_map_.at(i), true);
         }
     }
     
@@ -102,7 +101,11 @@ struct LocalMap
         for (int i = start; i < end + 1; ++i)
         {
             fmt::print("{} ", i);
-            insert(i, global_map_.at(i));
+            int global_map_val = global_map_.at(i);
+            if (global_map_val != global_map_.default_val_)
+            {
+                insert(i, global_map_.at(i));
+            }
         }
         fmt::print("\n");
     }
@@ -113,7 +116,9 @@ struct LocalMap
         for (int i = start; i < end + 1; ++i)
         {
             fmt::print("{} ", i);
-            global_map_.at(i) = value(i) * 10;
+            global_map_.at(i) = value(i);
+            data_.delete_from_subvoxel(get_index_of_point(i));
+            data_.cleanup_after_save(get_index_of_point(i));
         }
         fmt::print("\n");
     }
@@ -126,7 +131,7 @@ struct LocalMap
     
     inline const int& value_unchecked(int point) const
     {
-        return data_[get_index_of_point(point)];
+        return data_.val_in_subvoxel(get_index_of_point(point));
     }
     
     inline bool in_bounds(int x) const
@@ -138,16 +143,13 @@ struct LocalMap
     int size_;
 
     /// actual data in map
-    std::vector<int> data_;
+    VoxelMap1d data_;
     
     /// center position
     int pos_;
     
     /// offset from data(0) to pos
     int offset_;
-
-    /// default value in localmap
-    int default_value_;
     
     GlobalMap& global_map_;
 };

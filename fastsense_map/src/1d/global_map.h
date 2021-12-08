@@ -13,12 +13,20 @@
 
 struct GlobalMap
 {
-    explicit GlobalMap(int size)
+    explicit GlobalMap(int size, int default_value, bool fill)
     : data_(size+1)
     , offset_((size+1)/2)
     , size_(size+1)
+    , default_val_(default_value)
     {
-        std::iota(data_.begin(), data_.end(), -size/2);
+        if (fill)
+        {
+            std::iota(data_.begin(), data_.end(), -size/2);
+        }
+        else
+        {
+            std::fill(data_.begin(), data_.end(), default_value);
+        }
     }
     
     ~GlobalMap() = default;
@@ -49,4 +57,5 @@ struct GlobalMap
     std::vector<int> data_;
     int offset_;
     int size_;
+    int default_val_;
 };
