@@ -1,9 +1,13 @@
 # Thesis Research
 
-## Utils
+## utils
 
 utils for Ouster OSX sensors and more.
 
-## Subvoxelmap
+## subvoxelmap
 
 Subvoxelmap implementation from *3D Monte Carlo Localization with Efficient Distance Field Representation for Automated Driving in Dynamic Environments*
+
+## fastsense_map
+
+Subvoxelmap implementation from *3D Monte Carlo Localization with Efficient Distance Field Representation for Automated Driving in Dynamic Environments*, mixed with fastsense's local map implementation
