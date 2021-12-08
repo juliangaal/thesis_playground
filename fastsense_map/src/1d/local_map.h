@@ -116,7 +116,12 @@ struct LocalMap
         for (int i = start; i < end + 1; ++i)
         {
             fmt::print("{} ", i);
-            global_map_.at(i) = value(i);
+            const auto& save_val = value(i);
+            if (save_val != data_.default_val_)
+            {
+                global_map_.at(i) = save_val
+                        ;
+            }
             data_.delete_from_subvoxel(get_index_of_point(i));
             data_.cleanup_after_save(get_index_of_point(i));
         }
