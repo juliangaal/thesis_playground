@@ -103,6 +103,7 @@ TEST_CASE("1dVoxelMap", "[1dVoxelMap]")
         VoxelMap1d map(12, 4, 1, default_val);
         REQUIRE(map.size_ == 3);
         REQUIRE(map.offset_ == 6);
+
         for (int i = 0; i < map.size_ * map.res_; ++i)
         {
             int insert_val = i - map.offset_;
