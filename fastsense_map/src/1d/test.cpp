@@ -14,43 +14,116 @@ TEST_CASE("1dVoxelMap", "[1dVoxelMap]")
 {
     fmt::print("----\n1dVoxelMap\n----\n");
 
-    int default_val = -999;
-    VoxelMap1d map(10, 1, 1, default_val);
-    REQUIRE(map.val_in_subvoxel(-5, true) == default_val);
-    REQUIRE(map.val_in_subvoxel(-4, true) == default_val);
-    REQUIRE(map.val_in_subvoxel(-3, true) == default_val);
-    REQUIRE(map.val_in_subvoxel(-2, true) == default_val);
-    REQUIRE(map.val_in_subvoxel(-1, true) == default_val);
-    REQUIRE(map.val_in_subvoxel(0, true) == default_val);
-    REQUIRE(map.val_in_subvoxel(1, true) == default_val);
-    REQUIRE(map.val_in_subvoxel(2, true) == default_val);
-    REQUIRE(map.val_in_subvoxel(3, true) == default_val);
-    REQUIRE(map.val_in_subvoxel(4, true) == default_val);
+    {
+        int default_val = -999;
+        VoxelMap1d map(10, 1, 1, default_val);
+        REQUIRE(map.size_ == 10);
+        REQUIRE(map.offset_ == 5);
 
-    map.insert(4, 1, true);
-    REQUIRE(map.val_in_subvoxel(4, true) == 1);
+        for (int i = 0; i < map.size_ * map.res_; ++i)
+        {
+            int insert_val = i - map.offset_;
+            REQUIRE(map.val_in_subvoxel(insert_val, true) == default_val);
+        }
 
-    fmt::print("voxelmap: {}", map);
+        fmt::print("initial : {}", map);
 
-    map.insert(2, 2, true);
-    REQUIRE(map.val_in_subvoxel(2, true) == 2);
+        for (int i = 0; i < map.size_ * map.res_; ++i)
+        {
+            int insert_val = i - map.offset_;
+            map.insert(insert_val, insert_val, true);
+            REQUIRE(map.val_in_subvoxel(insert_val, true) == insert_val);
+            fmt::print("voxelmap: {}", map);
+        }
 
-    fmt::print("voxelmap: {}", map);
+        REQUIRE_THROWS(map.insert(-6, 1, true));
+        REQUIRE_THROWS(map.insert(-8, 1, true));
+        REQUIRE_THROWS(map.insert(5, 1, true));
+        REQUIRE_THROWS(map.insert(7, 1, true));
+    }
 
-    map.insert(-4, 1, true);
-    REQUIRE(map.val_in_subvoxel(-4, true) == 1);
+    {
+        int default_val = 0;
+        VoxelMap1d map(11, 2, 1, default_val);
+        REQUIRE(map.size_ == 6);
+        REQUIRE(map.offset_ == 6);
 
-    fmt::print("voxelmap: {}", map);
+        for (int i = 0; i < map.size_ * map.res_; ++i)
+        {
+            int insert_val = i - map.offset_;
+            REQUIRE(map.val_in_subvoxel(insert_val, true) == default_val);
+        }
 
-    map.insert(0, 2, true);
-    REQUIRE(map.val_in_subvoxel(0, true) == 2);
+        fmt::print("\ninitial : {}", map);
 
-    fmt::print("voxelmap: {}", map);
+        for (int i = 0; i < map.size_ * map.res_; ++i)
+        {
+            int insert_val = i - map.offset_;
+            map.insert(insert_val, insert_val, true);
+            REQUIRE(map.val_in_subvoxel(insert_val, true) == insert_val);
+            fmt::print("voxelmap: {}", map);
+        }
 
-    REQUIRE_THROWS(map.insert(-6, 1));
-    REQUIRE_THROWS(map.insert(6, 1));
+        REQUIRE_THROWS(map.insert(-7, 1, true));
+        REQUIRE_THROWS(map.insert(-8, 1, true));
+        REQUIRE_THROWS(map.insert(6, 1, true));
+        REQUIRE_THROWS(map.insert(7, 1, true));
+    }
 
-    fmt::print("voxelmap: {}", map);
+    {
+        int default_val = 0;
+        VoxelMap1d map(12, 3, 1, default_val);
+        REQUIRE(map.size_ == 4);
+        REQUIRE(map.offset_ == 6);
+
+        for (int i = 0; i < map.size_ * map.res_; ++i)
+        {
+            int insert_val = i - map.offset_;
+            REQUIRE(map.val_in_subvoxel(insert_val, true) == default_val);
+        }
+
+        fmt::print("\ninitial : {}", map);
+
+        for (int i = 0; i < map.size_ * map.res_; ++i)
+        {
+            int insert_val = i - map.offset_;
+            map.insert(insert_val, insert_val, true);
+            REQUIRE(map.val_in_subvoxel(insert_val, true) == insert_val);
+            fmt::print("voxelmap: {}", map);
+        }
+
+        REQUIRE_THROWS(map.insert(-7, 1, true));
+        REQUIRE_THROWS(map.insert(-8, 1, true));
+        REQUIRE_THROWS(map.insert(6, 1, true));
+        REQUIRE_THROWS(map.insert(7, 1, true));
+    }
+
+    {
+        int default_val = 0;
+        VoxelMap1d map(12, 4, 1, default_val);
+        REQUIRE(map.size_ == 3);
+        REQUIRE(map.offset_ == 6);
+        for (int i = 0; i < map.size_ * map.res_; ++i)
+        {
+            int insert_val = i - map.offset_;
+            REQUIRE(map.val_in_subvoxel(insert_val, true) == default_val);
+        }
+
+        fmt::print("\ninitial : {}", map);
+
+        for (int i = 0; i < map.size_ * map.res_; ++i)
+        {
+            int insert_val = i - map.offset_;
+            map.insert(insert_val, insert_val, true);
+            REQUIRE(map.val_in_subvoxel(insert_val, true) == insert_val);
+            fmt::print("voxelmap: {}", map);
+        }
+
+        REQUIRE_THROWS(map.insert(-7, 1, true));
+        REQUIRE_THROWS(map.insert(-8, 1, true));
+        REQUIRE_THROWS(map.insert(6, 1, true));
+        REQUIRE_THROWS(map.insert(7, 1, true));
+    }
 
     fmt::print("done\n");
 }
@@ -67,13 +140,16 @@ TEST_CASE("1dLocalMap", "[1dLocalMap]")
     REQUIRE_THROWS(global_map.at(6));
 
     LocalMap local_map(5, default_value, global_map);
-    // in this scenario, local map is filled with values that already exist
-//    local_map.fill();
+
+    // local map represents local_map.size + 1 (if uneven) fields
+    // (sub)voxelmap size is therefore this size / res
+    // (sub)voxelmap offset represents offset from 0 from "real" size being represented (size * res)
+    REQUIRE(local_map.data_.size_ == 3);
+    REQUIRE(local_map.data_.size_ * local_map.data_.res_ == 6);
+    REQUIRE(local_map.data_.offset_ == 3);
 
     local_map.insert(-2, -2);
     local_map.insert(-1, -1);
-//    local_map.insert(0, 0);
-//    local_map.insert(1, 1);
 
     fmt::print("initial local map :           {}\n", local_map.data_);
 

@@ -60,9 +60,9 @@ struct SubVoxelMap1d
 struct VoxelMap1d
 {
     VoxelMap1d(unsigned int size, int res, int subvoxel_res, int default_val)
-    : size_(static_cast<int>(size % 2 == 1 ? size : size + 1))
-    , data_(new SubVoxelMap1d*[size])
-    , offset_(size/2)
+    : size_(static_cast<int>(size % 2 == 1 ? (size + 1) / res : (size / res)))
+    , data_(new SubVoxelMap1d*[size_])
+    , offset_(static_cast<int>(size % 2 == 1 ? (size + 1) / 2 : size / 2))
     , res_(res)
     , subvoxel_res_(subvoxel_res)
     , default_val_(default_val)
@@ -185,7 +185,11 @@ struct VoxelMap1d
     {
         if (offset_applied)
         {
-            return std::abs(x) <= offset_;
+            if (x < 0)
+            {
+                return std::abs(x) <= offset_;
+            }
+            return x < offset_;
         }
 
         return x < (size_ * res_);
@@ -193,7 +197,7 @@ struct VoxelMap1d
 
     friend std::ostream& operator<<(std::ostream& os, const VoxelMap1d& map)
     {
-        for (int x = 0; x < map.size_; ++x)
+        for (int x = 0; x < map.size_ * map.res_; x += map.res_)
         {
             auto voxelmap_index = x / map.res_;
             auto* subvoxel = map.data_[voxelmap_index];
@@ -204,7 +208,10 @@ struct VoxelMap1d
 
             if (subvoxel == nullptr)
             {
+                for (int i = 0; i < map.res_; ++i)
+                {
                     os << " - ";
+                }
             }
             else
             {
