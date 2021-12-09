@@ -122,3 +122,67 @@ TEST_CASE("1dLocalMap", "[1dLocalMap]")
     fmt::print("shift 2\n global map: {}\n local map:            {}\n", fmt::join(global_map.data_, " , "), local_map.data_);
     fmt::print("done\n");
 }
+
+// Test in fastsense style
+TEST_CASE("1dLocalMap_fastsense", "[1dLocalMap_fastsense]")
+{
+    GlobalMap global_map(100, 0, false);
+
+    REQUIRE_THROWS(global_map.at(-101));
+    REQUIRE_THROWS(global_map.at(101));
+
+    int default_value = -999;
+    LocalMap local_map(5, default_value, global_map);
+
+    local_map.insert(-2, 0);
+    local_map.insert(-1, 1);
+
+    // Test initialization
+    REQUIRE(local_map.get_pos() == 0);
+    REQUIRE(local_map.get_size() == 5);
+    REQUIRE(local_map.get_offset() == 2);
+
+    // Test in_bounds
+    REQUIRE(local_map.in_bounds(2));
+    REQUIRE_FALSE(local_map.in_bounds(22));
+
+    // test default values
+    REQUIRE(local_map.value(0) == default_value);
+
+    // test value access
+    REQUIRE(local_map.value(-1) == 1);
+    REQUIRE(local_map.value(-2) == 0);
+
+    // test shift
+    local_map.shift(5);
+    REQUIRE(local_map.get_pos() == 5);
+    REQUIRE(local_map.get_size() == 5);
+    REQUIRE(local_map.get_offset() == 7 % 5);
+
+    local_map.shift(10);
+    REQUIRE(local_map.get_pos() == 10);
+    REQUIRE(local_map.get_size() == 5);
+    REQUIRE(local_map.get_offset() == 12 % 5);
+
+    local_map.shift(15);
+    REQUIRE(local_map.get_pos() == 15);
+    REQUIRE(local_map.get_size() == 5);
+    REQUIRE(local_map.get_offset() == 17 % 5);
+
+    local_map.shift(20);
+    REQUIRE(local_map.get_pos() == 20);
+    REQUIRE(local_map.get_size() == 5);
+    REQUIRE(local_map.get_offset() == 22 % 5);
+
+    local_map.shift(24);
+    REQUIRE(local_map.get_pos() == 24);
+    REQUIRE(local_map.get_size() == 5);
+    REQUIRE(local_map.get_offset() == 26 % 5);
+
+    // Test in_bounds
+    REQUIRE_FALSE(local_map.in_bounds(2));
+    REQUIRE(local_map.in_bounds(22));
+
+    // Test values
+    CHECK(local_map.value(24) == default_value);
+}
