@@ -20,7 +20,7 @@ struct LocalMap
      */
     LocalMap(unsigned int size, int default_value, GlobalMap& map)
         : size_{static_cast<int>(size % 2 == 1 ? size : size + 1)}
-        , data_(size_, 1, 1, default_value)
+        , data_(size, 2, 1, default_value)
         , pos_(0)
         , offset_(size_ / 2)
         , global_map_(map)
