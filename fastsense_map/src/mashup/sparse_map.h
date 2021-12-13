@@ -7,7 +7,7 @@
  */
 
 #include "subvoxelmap/util.h"
-#include "util/point.h"
+#include "../util/point.h"
 
 struct SparseSubMap
 {
@@ -104,6 +104,11 @@ struct SparseMap
         return data_[x] == nullptr;
     }
 
+    void insert(const Eigen::Vector3i& point, int val, bool apply_offset = false) const
+    {
+        insert(point.x(), point.y(), point.z(), val, apply_offset);
+    }
+
     void insert(int x, int y, int z, int val, bool apply_offset = false) const
     {
         if (!in_bounds(x, y, z, apply_offset))
@@ -147,11 +152,16 @@ struct SparseMap
         data_[index]->insert_val(sub_x, sub_y, sub_z, val);
     }
 
-    const int& val_in_subvoxel(int x, int y, int z, bool apply_offset = false) const
+    const int& at(const Eigen::Vector3i& p, bool apply_offset = false) const
+    {
+        return at(p.x(), p.y(), p.z(), apply_offset);
+    }
+
+    const int& at(int x, int y, int z, bool apply_offset = false) const
     {
         if (!in_bounds(x, y, z, apply_offset))
         {
-            throw std::out_of_range(fmt::format("Out of range (voxelmap, val_in_subvoxel): {}", x));
+            throw std::out_of_range(fmt::format("Out of range (voxelmap, at): {}", x));
         }
 
         if (apply_offset)

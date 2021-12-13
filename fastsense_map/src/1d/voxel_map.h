@@ -155,7 +155,7 @@ struct VoxelMap1d
     {
         if (!in_bounds(x, apply_offset))
         {
-            throw std::out_of_range(fmt::format("Out of range (voxelmap, val_in_subvoxel): {}", x));
+            throw std::out_of_range(fmt::format("Out of range (voxelmap, at): {}", x));
         }
 
         if (apply_offset)

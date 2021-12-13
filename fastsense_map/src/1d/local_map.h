@@ -2,10 +2,10 @@
 
 /**
   * @file local_map.h
-  * @author julian 
+  * @author julian
   * @date 12/2/21
  */
- 
+
 #include "global_map.h"
 #include "voxel_map.h"
 #include <fmt/printf.h>
@@ -19,11 +19,11 @@ struct LocalMap
      * @param map global map
      */
     LocalMap(unsigned int size, int default_value, GlobalMap& map)
-        : size_{static_cast<int>(size % 2 == 1 ? size : size + 1)}
-        , data_(size, 2, 1, default_value)
-        , pos_(0)
-        , offset_(size_ / 2)
-        , global_map_(map)
+            : size_{static_cast<int>(size % 2 == 1 ? size : size + 1)}
+            , data_(size, 2, 1, default_value)
+            , pos_(0)
+            , offset_(size_ / 2)
+            , global_map_(map)
     {
 
     }
@@ -38,7 +38,7 @@ struct LocalMap
         {
             throw std::out_of_range("Index out of bounds!");
         }
-        
+
         return value_unchecked(x);
     }
 
@@ -76,10 +76,10 @@ struct LocalMap
         {
             return;
         }
-        
+
         int start = pos_ - size_/ 2;
         int end = pos_ + size_/ 2;
-        
+
         if (diff > 0) // shift happened to right
         {
             end = start + diff - 1;
@@ -89,7 +89,7 @@ struct LocalMap
             start = end + diff + 1;
         }
         save_area(start, end);
-    
+
         pos_ += diff;
         offset_ = (offset_ + diff + size_) % size_;
 
@@ -97,13 +97,13 @@ struct LocalMap
         // it is determined by pos and the amount of shift (diff)
         start = pos_ - size_ / 2;
         end = pos_ + size_ / 2;
-        
+
         // if shift happens to right, load end until end - (diff - 1)
         if (diff > 0)
         {
             start = end - (diff - 1);
         }
-        // if shift happens to the left, load start until start + (abs(diff) - 1)
+            // if shift happens to the left, load start until start + (abs(diff) - 1)
         else
         {
             // end = start + abs(diff) - 1,  but diff < 0
@@ -183,18 +183,19 @@ struct LocalMap
     {
         return offset_;
     }
-    
+
     /// length of local map, always odd so there is a middle cell
     int size_;
 
     /// actual data in map
     VoxelMap1d data_;
-    
+
     /// center position
     int pos_;
-    
+
     /// offset from data(0) to pos
     int offset_;
-    
+
     GlobalMap& global_map_;
 };
+

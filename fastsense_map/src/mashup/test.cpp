@@ -8,6 +8,8 @@
 #include <catch2/catch_test_macros.hpp>
 #include <fmt/printf.h>
 #include "sparse_map.h"
+#include "global_map.h"
+#include "local_map.h"
 
 TEST_CASE("SparseSubMap", "[SparseSubMap]")
 {
@@ -114,7 +116,7 @@ TEST_CASE("VoxelMap", "[VoxelMap]")
                     int x = i - map.offset_;
                     int y = j - map.offset_;
                     int z = k - map.offset_;
-                    REQUIRE(map.val_in_subvoxel(x, y, z, true) == default_val);
+                    REQUIRE(map.at(x, y, z, true) == default_val);
                 }
             }
         }
@@ -130,7 +132,7 @@ TEST_CASE("VoxelMap", "[VoxelMap]")
                     int y = j - map.offset_;
                     int z = k - map.offset_;
                     map.insert(x, y, z, insert_val, true);
-                    REQUIRE(map.val_in_subvoxel(x, y, z, true) == insert_val);
+                    REQUIRE(map.at(x, y, z, true) == insert_val);
                 }
             }
         }
@@ -166,7 +168,7 @@ TEST_CASE("VoxelMap", "[VoxelMap]")
                     int x = i - map.offset_;
                     int y = j - map.offset_;
                     int z = k - map.offset_;
-                    REQUIRE(map.val_in_subvoxel(x, y, z, true) == default_val);
+                    REQUIRE(map.at(x, y, z, true) == default_val);
                 }
             }
         }
@@ -182,7 +184,7 @@ TEST_CASE("VoxelMap", "[VoxelMap]")
                     int y = j - map.offset_;
                     int z = k - map.offset_;
                     map.insert(x, y, z, insert_val, true);
-                    REQUIRE(map.val_in_subvoxel(x, y, z, true) == insert_val);
+                    REQUIRE(map.at(x, y, z, true) == insert_val);
                 }
             }
         }
@@ -218,7 +220,7 @@ TEST_CASE("VoxelMap", "[VoxelMap]")
                     int x = i - map.offset_;
                     int y = j - map.offset_;
                     int z = k - map.offset_;
-                    REQUIRE(map.val_in_subvoxel(x, y, z, true) == default_val);
+                    REQUIRE(map.at(x, y, z, true) == default_val);
                 }
             }
         }
@@ -234,7 +236,7 @@ TEST_CASE("VoxelMap", "[VoxelMap]")
                     int y = j - map.offset_;
                     int z = k - map.offset_;
                     map.insert(x, y, z, insert_val, true);
-                    REQUIRE(map.val_in_subvoxel(x, y, z, true) == insert_val);
+                    REQUIRE(map.at(x, y, z, true) == insert_val);
                 }
             }
         }
@@ -252,4 +254,45 @@ TEST_CASE("VoxelMap", "[VoxelMap]")
         REQUIRE_THROWS(map.insert(0, 7, 0, 1, true));
         REQUIRE_THROWS(map.insert(0, 0, 7, 1, true));
     }
+}
+
+TEST_CASE("Mashup", "[mashup]")
+{
+    fmt::print("Testing Mashup\n");
+
+    int default_value = -999;
+    GlobalMap global_map(10, 0, false);
+
+    REQUIRE_THROWS(global_map.at(-6, 0, 0));
+    REQUIRE_THROWS(global_map.at(6, 0, 0));
+
+    LocalMap local_map(5, default_value, global_map);
+
+    // local map represents local_map.size + 1 (if uneven) fields
+    // (sub)voxelmap size is therefore this size / res
+    // (sub)voxelmap offset represents offset from 0 from "real" size being represented (size * res)
+//    REQUIRE(local_map.data_.size_ == 3);
+//    REQUIRE(local_map.data_.size_ * local_map.data_.res_ == 6);
+//    REQUIRE(local_map.data_.offset_ == 3);
+
+    local_map.insert({ -2, 2, 0 }, 0);
+    local_map.insert({ -1, 2, 0 }, 1);
+    local_map.insert({ -2, 1, 0 }, 2);
+    local_map.insert({ -1, 1, 0 }, 3);
+    local_map.insert({ -2, 0, 0 }, 4);
+    local_map.insert({ -1, 0, 0 }, 5);
+
+    // test getter
+    REQUIRE(local_map.get_pos() == Eigen::Vector3i(0, 0, 0));
+    REQUIRE(local_map.get_size() == Eigen::Vector3i(5, 5, 5));
+    REQUIRE(local_map.get_offset() == Eigen::Vector3i(2, 2, 2));
+
+    // Test inserted values
+    REQUIRE(local_map.value({0, 0, 0}) == default_value);
+    REQUIRE(local_map.value({ -2, 2, 0 }) == 0);
+    REQUIRE(local_map.value({ -1, 2, 0 }) == 1);
+    REQUIRE(local_map.value({ -2, 1, 0 }) == 2);
+    REQUIRE(local_map.value({ -1, 1, 0 }) == 3);
+    REQUIRE(local_map.value({ -2, 0, 0 }) == 4);
+    REQUIRE(local_map.value({ -1, 0, 0 }) == 5);
 }
