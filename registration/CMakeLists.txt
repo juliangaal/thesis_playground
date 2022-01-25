@@ -17,8 +17,14 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(fmt)
 
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
+find_package(PCL 1.8 REQUIRED)
 
 add_executable(umeyama src/umeyama.cpp)
 target_include_directories(umeyama PRIVATE ${Eigen3_INCLUDE_DIRS} ${Catch2_INCLUDE_DIRS} src)
 target_link_libraries(umeyama PRIVATE Catch2::Catch2WithMain fmt::fmt)
 target_compile_options(umeyama PRIVATE -Wall -Weffc++ -Wuninitialized)
+
+add_executable(dsa src/dsa.cpp)
+target_include_directories(dsa PRIVATE ${Eigen3_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} src)
+target_link_libraries(dsa PRIVATE fmt::fmt ${PCL_LIBRARIES})
+target_compile_options(dsa PRIVATE -Wall -Weffc++ -Wuninitialized -Wno-dev)
