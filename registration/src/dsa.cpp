@@ -1,6 +1,7 @@
 #include <iostream>
 #include <pcl/io/pcd_io.h>
 #include <pcl/point_types.h>
+#include <pcl/common/transforms.h>
 #include <pcl/features/normal_3d.h>
 #include <pcl/features/normal_3d_omp.h>
 #include <pcl/visualization/cloud_viewer.h>
@@ -26,7 +27,7 @@ void calculate_features(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::PointClo
     // Create an empty kdtree representation, and pass it to the normal estimation object.
     // Its content will be filled inside the object, based on the given input dataset (as no other search surface is given).
     pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ> ());
-    ne.setSearchMethod (tree);
+    ne.setSearchMethod(tree);
     
     std::cout << "built tree\n";
     
@@ -58,7 +59,9 @@ void calculate_features(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::PointClo
     features->points.resize(points_and_normals.size() * threshold);
     for (size_t i = 0; i < features->points.size(); ++i)
     {
-        features->points[i] = points_and_normals[i].point;
+        features->points[i].x = points_and_normals[i].point.x;
+        features->points[i].y = points_and_normals[i].point.y;
+        features->points[i].z = points_and_normals[i].point.z;
     }
 }
 
@@ -78,6 +81,19 @@ int main (void)
     pcl::PointCloud<pcl::PointXYZ>::Ptr features(new pcl::PointCloud<pcl::PointXYZ>);
     float threshold = 0.1;
     calculate_features(cloud, features, threshold);
+    
+    Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();
+    float theta = M_PI/4; // The angle of rotation in radians
+    transform (0,0) = std::cos (theta);
+    transform (0,1) = -sin(theta);
+    transform (1,0) = sin (theta);
+    transform (1,1) = std::cos (theta);
+    transform (0,3) = 2.5;
+    
+    std::cout << "Transformation: \n" << transform << std::endl;
+    
+    pcl::PointCloud<pcl::PointXYZ>::Ptr transformed_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::transformPointCloud(*cloud, *transformed_cloud, transform);
     
     show_cloud(viewer, features);
     
