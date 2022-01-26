@@ -6,27 +6,43 @@
 #include <pcl/features/normal_3d_omp.h>
 #include <pcl/visualization/cloud_viewer.h>
 
-void show_cloud(pcl::visualization::CloudViewer &viewer, pcl::PointCloud<pcl::PointXYZ>::Ptr cloud)
+
+void show_cloud(pcl::visualization::CloudViewer &viewer, std::vector<pcl::PointCloud<pcl::PointXYZRGBA>::Ptr> cloud)
 {
-    viewer.showCloud(cloud);
+    auto total = cloud[0];
+    for (int i = 1; i < cloud.size(); ++i)
+    {
+        *total += *cloud[i];
+    }
+
+    viewer.showCloud(total);
     while (!viewer.wasStopped()) {}
 }
 
 struct PointN
 {
-    pcl::PointXYZ point;
+    pcl::PointXYZRGBA point;
     pcl::Normal normal;
 };
 
-void calculate_features(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::PointCloud<pcl::PointXYZ>::Ptr features, float threshold)
+struct RGBA
+{
+    int r;
+    int g;
+    int b;
+    int a;
+};
+
+void
+calculate_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr features, float threshold, RGBA color)
 {
     // Create the normal estimation class, and pass the input dataset to it
-    pcl::NormalEstimationOMP<pcl::PointXYZ, pcl::Normal> ne;
+    pcl::NormalEstimationOMP<pcl::PointXYZRGBA, pcl::Normal> ne;
     ne.setInputCloud (cloud);
     
     // Create an empty kdtree representation, and pass it to the normal estimation object.
     // Its content will be filled inside the object, based on the given input dataset (as no other search surface is given).
-    pcl::search::KdTree<pcl::PointXYZ>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZ> ());
+    pcl::search::KdTree<pcl::PointXYZRGBA>::Ptr tree (new pcl::search::KdTree<pcl::PointXYZRGBA> ());
     ne.setSearchMethod(tree);
     
     std::cout << "built tree\n";
@@ -38,7 +54,7 @@ void calculate_features(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::PointClo
     ne.setRadiusSearch(0.05);
     
     // Compute the features
-    ne.compute (*normals);
+    ne.compute(*normals);
     
     std::cout << "normals calculated\n";
     
@@ -47,6 +63,10 @@ void calculate_features(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::PointClo
     
     for (size_t i = 0; i < normals->size(); ++i)
     {
+//        cloud->points[i].r = 255;
+//        cloud->points[i].g = 255;
+//        cloud->points[i].b = 255;
+//        cloud->points[i].a = 1;
         points_and_normals[i] = {cloud->points[i], normals->points[i]};
     }
     
@@ -62,6 +82,9 @@ void calculate_features(pcl::PointCloud<pcl::PointXYZ>::Ptr cloud, pcl::PointClo
         features->points[i].x = points_and_normals[i].point.x;
         features->points[i].y = points_and_normals[i].point.y;
         features->points[i].z = points_and_normals[i].point.z;
+        features->points[i].r = color.r;
+        features->points[i].g = color.g;
+        features->points[i].b = color.b;
     }
 }
 
@@ -70,17 +93,17 @@ int main (void)
 {
     pcl::visualization::CloudViewer viewer("cloud");
     
-    pcl::PointCloud<pcl::PointXYZ>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZ>);
-    if (pcl::io::loadPCDFile<pcl::PointXYZ>("../data/triangle_d1000.pcd", *cloud) == -1) //* load the file
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
+    if (pcl::io::loadPCDFile<pcl::PointXYZRGBA>("../data/triangle_d1000.pcd", *cloud) == -1) //* load the file
     {
         PCL_ERROR("Couldn't read file\n");
         return -1;
     }
     std::cout << "Loaded point cloud with " << cloud->points.size() << " points\n";
     
-    pcl::PointCloud<pcl::PointXYZ>::Ptr features(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr features(new pcl::PointCloud<pcl::PointXYZRGBA>);
     float threshold = 0.1;
-    calculate_features(cloud, features, threshold);
+    calculate_features(cloud, features, threshold, {255, 0, 0, 255});
     
     Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();
     float theta = M_PI/4; // The angle of rotation in radians
@@ -92,10 +115,10 @@ int main (void)
     
     std::cout << "Transformation: \n" << transform << std::endl;
     
-    pcl::PointCloud<pcl::PointXYZ>::Ptr transformed_cloud(new pcl::PointCloud<pcl::PointXYZ>);
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr transformed_cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
     pcl::transformPointCloud(*cloud, *transformed_cloud, transform);
     
-    show_cloud(viewer, features);
+    show_cloud(viewer, {cloud, features});
     
     return 0;
 }
