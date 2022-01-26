@@ -16,15 +16,22 @@ FetchContent_Declare(
 )
 FetchContent_MakeAvailable(fmt)
 
+find_package(PkgConfig REQUIRED)
 find_package(Eigen3 3.3 REQUIRED NO_MODULE)
 find_package(PCL 1.8 REQUIRED)
+find_package(Boost 1.54 COMPONENTS filesystem system program_options REQUIRED)
 
 add_executable(umeyama src/umeyama.cpp)
 target_include_directories(umeyama PRIVATE ${Eigen3_INCLUDE_DIRS} ${Catch2_INCLUDE_DIRS} src)
 target_link_libraries(umeyama PRIVATE Catch2::Catch2WithMain fmt::fmt)
 target_compile_options(umeyama PRIVATE -Wall -Weffc++ -Wuninitialized)
 
-add_executable(dsa src/dsa.cpp)
+add_executable(pcl_normals src/pcl_normals.cpp)
+target_include_directories(pcl_normals PRIVATE ${Eigen3_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} src)
+target_link_libraries(pcl_normals PRIVATE fmt::fmt ${PCL_LIBRARIES})
+target_compile_options(pcl_normals PRIVATE -Wall -Weffc++ -Wuninitialized -Wno-dev)
+
+add_executable(dsa src/dsa.cpp src/util.cpp src/ply.cpp)
 target_include_directories(dsa PRIVATE ${Eigen3_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} src)
-target_link_libraries(dsa PRIVATE fmt::fmt ${PCL_LIBRARIES})
+target_link_libraries(dsa PRIVATE fmt::fmt ${PCL_LIBRARIES} ${Boost_LIBRARIES})
 target_compile_options(dsa PRIVATE -Wall -Weffc++ -Wuninitialized -Wno-dev)
