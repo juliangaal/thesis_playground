@@ -31,7 +31,11 @@ target_include_directories(pcl_normals PRIVATE ${Eigen3_INCLUDE_DIRS} ${PCL_INCL
 target_link_libraries(pcl_normals PRIVATE fmt::fmt ${PCL_LIBRARIES})
 target_compile_options(pcl_normals PRIVATE -Wall -Weffc++ -Wuninitialized -Wno-dev)
 
-add_executable(dsa src/dsa.cpp src/util.cpp src/ply.cpp)
+add_executable(dsa src/run_dsa.cpp src/dsa.cpp src/dsa.h src/util.cpp src/ply.cpp)
 target_include_directories(dsa PRIVATE ${Eigen3_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} src)
 target_link_libraries(dsa PRIVATE fmt::fmt ${PCL_LIBRARIES} ${Boost_LIBRARIES})
 target_compile_options(dsa PRIVATE -Wall -Weffc++ -Wuninitialized -Wno-dev)
+
+add_executable(registration_test src/test.cpp src/dsa.cpp)
+target_include_directories(registration_test PRIVATE ${Eigen3_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} ${Catch2_INCLUDE_DIRS} src)
+target_link_libraries(registration_test PRIVATE Catch2::Catch2WithMain fmt::fmt ${PCL_LIBRARIES})
