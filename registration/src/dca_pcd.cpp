@@ -1,4 +1,4 @@
-#include "dsa.h"
+#include "dca.h"
 #include <iostream>
 
 int main(void)
@@ -15,7 +15,7 @@ int main(void)
     std::cout << "Loaded point cloud with " << cloud->points.size() << " points\n";
 
     float threshold = 0.1;
-    int k_neighbors = 10;
+    int k_neighbors = 5;
 
     pcl::PointCloud<DSADescriptor>::Ptr dsa_features(new pcl::PointCloud<DSADescriptor>);
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr filtered_dsa_features(new pcl::PointCloud<pcl::PointXYZRGBA>);
@@ -28,10 +28,10 @@ int main(void)
 
     Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();
     float theta = M_PI/4; // The angle of rotation in radians
-    transform (0,0) = std::cos (theta);
-    transform (0,1) = -sin(theta);
-    transform (1,0) = sin (theta);
-    transform (1,1) = std::cos (theta);
+//    transform(0,0) = std::cos (theta);
+//    transform(0,1) = -sin(theta);
+//    transform(1,0) = sin (theta);
+//    transform(1,1) = std::cos (theta);
     transform (0,3) = 2.5;
 
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr trans_cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);

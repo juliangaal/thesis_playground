@@ -1,4 +1,4 @@
-#include "dsa.h"
+#include "dca.h"
 
 void show_cloud(pcl::visualization::CloudViewer &viewer, std::vector<pcl::PointCloud<pcl::PointXYZRGBA>::Ptr> cloud)
 {
@@ -20,7 +20,7 @@ float angle(const Eigen::Vector3f &p1, const Eigen::Vector3f &p2)
 
 float euclidean_distance(const pcl::PointXYZRGBA &p1, const pcl::PointXYZRGBA &p2)
 {
-    return std::sqrt(p1.x * p2.x + p1.y * p2.y + p1.z * p2.z);
+    return (Eigen::Vector3f(p1.x, p1.y, p1.z) - Eigen::Vector3f(p2.x, p2.y, p2.z)).norm();
 }
 
 void calc_dsa_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::PointCloud<DSADescriptor>::Ptr features,
@@ -87,6 +87,8 @@ void calc_dsa_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::Point
         for (const auto &neighbor_idx: neighborhood[i])
         {
             const auto &neighbor = cloud->points[i];
+//            neighbor_angle_sum += (normal.normal.head<3>() - normals.points[neighbor_idx].normal.head<3>()).norm();
+//            original implementation from paper results in very bad descriptor
             neighbor_angle_sum += angle(normal.normal.head<3>(),
                                         normals.points[neighbor_idx].normal.head<3>());
             neighbor_dist_sum += euclidean_distance(point, neighbor);
@@ -102,7 +104,8 @@ void calc_dsa_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::Point
 void filter_dsa_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::PointCloud<DSADescriptor>::Ptr features,
                          pcl::PointCloud<pcl::PointXYZRGBA>::Ptr significant_points, float threshold)
 {
-    std::sort(features->points.begin(), features->points.end(), [&](const auto &pn1, const auto &pn2)
+    std::sort(features->points.begin(), features->points.end(),
+              [&](const DSADescriptor &pn1, const DSADescriptor &pn2)
     {
         return pn1.curvature > pn2.curvature;
     });
