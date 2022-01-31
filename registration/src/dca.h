@@ -52,14 +52,13 @@ struct DSADescriptor
     int point_idx;
 };
 
-void show_cloud(pcl::visualization::CloudViewer &viewer, std::vector<pcl::PointCloud<pcl::PointXYZRGBA>::Ptr> cloud);
-
 float angle(const Eigen::Vector3f& p1, const Eigen::Vector3f& p2);
 
 float euclidean_distance(const pcl::PointXYZRGBA& p1, const pcl::PointXYZRGBA& p2);
 
-void calc_dsa_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::PointCloud<DSADescriptor>::Ptr features, int k_neighbors);
+void calc_dca_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::PointCloud<DSADescriptor>::Ptr features,
+                       pcl::PointCloud<pcl::Normal>::Ptr pcl_normals, int k_neighbors);
 
-void filter_dsa_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::PointCloud<DSADescriptor>::Ptr features, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr significant_points, float threshold);
+void filter_dca_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::PointCloud<DSADescriptor>::Ptr features, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr significant_points, float threshold);
 
 

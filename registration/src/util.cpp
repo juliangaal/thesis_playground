@@ -1,4 +1,6 @@
 #include "util.h"
+#include "dca.h"
+#include <thread>
 
 void util::to_eigen(const std::vector<int>& indices, const flann::Matrix<double>& dataset, std::vector<util::Point>& neighbors, size_t number_neighbors)
 {
@@ -14,4 +16,3 @@ void util::to_eigen(const std::vector<int>& indices, const flann::Matrix<double>
     }
 
 }
-

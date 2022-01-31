@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(umeyama)
+project(registration)
 
 Include(FetchContent)
 FetchContent_Declare(
@@ -31,7 +31,7 @@ target_include_directories(pcl_normals PRIVATE ${Eigen3_INCLUDE_DIRS} ${PCL_INCL
 target_link_libraries(pcl_normals PRIVATE fmt::fmt ${PCL_LIBRARIES})
 target_compile_options(pcl_normals PRIVATE -Wall -Weffc++ -Wuninitialized -Wno-dev)
 
-add_executable(dca src/dca_pcd.cpp src/dca.cpp src/dca.h src/util.cpp src/ply.cpp)
+add_executable(dca src/dca_pcd.cpp src/dca.cpp src/dca.h src/util.cpp)
 target_include_directories(dca PRIVATE ${Eigen3_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} src)
 target_link_libraries(dca PRIVATE fmt::fmt ${PCL_LIBRARIES} ${Boost_LIBRARIES})
 target_compile_options(dca PRIVATE -Wall -Weffc++ -Wuninitialized -Wno-dev)
