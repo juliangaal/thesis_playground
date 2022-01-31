@@ -14,5 +14,4 @@ void util::to_eigen(const std::vector<int>& indices, const flann::Matrix<double>
         neighbors[step][1] = dataset[indices[step]][1];
         neighbors[step][2] = dataset[indices[step]][2];
     }
-
 }

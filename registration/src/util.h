@@ -3,9 +3,6 @@
 #include <iostream>
 #include <flann/flann.hpp>
 #include <eigen3/Eigen/Core>
-#include <pcl/point_cloud.h>
-#include <pcl/point_types.h>
-#include <pcl/visualization/cloud_viewer.h>
 #include "dca.h"
 
 namespace util
