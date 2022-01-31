@@ -2,7 +2,22 @@
 
 float angle(const Eigen::Vector3f &p1, const Eigen::Vector3f &p2)
 {
-    return std::acos(p1.dot(p2) / (p1.norm() * p2.norm()));
+    return safe_acos(p1.dot(p2) / (p1.norm() * p2.norm()));
+}
+
+float safe_acos(float f)
+{
+    if (f < -1.0f)
+    {
+        return M_PI;
+    }
+    
+    if (f > 1.0f)
+    {
+        return 0.0f;
+    }
+    
+    return std::acos(f);
 }
 
 float euclidean_distance(const pcl::PointXYZRGBA &p1, const pcl::PointXYZRGBA &p2)
@@ -60,7 +75,7 @@ void calc_dca_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::Point
 
     features->points.resize(pcl_normals->points.size());
 
-    for (int i = 0; i < cloud->size(); ++i)
+    for (size_t i = 0; i < cloud->size(); ++i)
     {
         const auto &point = cloud->points[i];
         const auto &normal = pcl_normals->points[i];
@@ -72,21 +87,17 @@ void calc_dca_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::Point
 
         float neighbor_angle_sum = 0;
         float neighbor_dist_sum = 0;
-
+    
         for (const auto &neighbor_idx: neighborhood[i])
         {
-            const auto &neighbor = cloud->points[i];
-//            neighbor_angle_sum += (normal.normal.head<3>() - normals.points[neighbor_idx].normal.head<3>()).norm();
-//            original implementation from paper results in very bad descriptor
-            neighbor_angle_sum += angle(Eigen::Vector3f(normal.normal),
-                                        Eigen::Vector3f(pcl_normals->points[neighbor_idx].normal));
+            const auto &neighbor = cloud->points[neighbor_idx];
+            neighbor_angle_sum += angle(Eigen::Vector3f(normal.normal), Eigen::Vector3f(pcl_normals->points[neighbor_idx].normal));
             neighbor_dist_sum += euclidean_distance(point, neighbor);
         }
 
         auto n_neighbors_f = static_cast<float>(neighborhood[i].size());
-        float avg_neighbor_angle = neighbor_angle_sum / n_neighbors_f;
         float avg_neighbor_dist = neighbor_dist_sum / n_neighbors_f;
-        features->points[i] = DSADescriptor{normal.curvature, avg_neighbor_dist, avg_neighbor_angle, i};
+        features->points[i] = DSADescriptor{normal.curvature, avg_neighbor_dist, neighbor_angle_sum, i};
     }
 }
 

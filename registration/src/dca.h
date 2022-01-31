@@ -48,11 +48,13 @@ struct DSADescriptor
 {
     float curvature;
     float avg_neighbor_dist;
-    float avg_neighbor_normal_angle;
-    int point_idx;
+    float neighbor_angle_sum;
+    size_t point_idx;
 };
 
 float angle(const Eigen::Vector3f& p1, const Eigen::Vector3f& p2);
+
+float safe_acos(float f);
 
 float euclidean_distance(const pcl::PointXYZRGBA& p1, const pcl::PointXYZRGBA& p2);
 

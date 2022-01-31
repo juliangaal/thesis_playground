@@ -16,6 +16,7 @@ TEST_CASE("Tests", "[tests]")
         Eigen::Vector3f p1{1, 1, 1};
         Eigen::Vector3f p2{-1, -1, -1};
         REQUIRE(angle(p1, p2) == Catch::Approx(M_PI).epsilon(0.001));
+        REQUIRE(angle(p2, p1) == Catch::Approx(M_PI).epsilon(0.001));
     }
     {
         Eigen::Vector3f p1{1, 0, 0};
