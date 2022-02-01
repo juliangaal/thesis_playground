@@ -32,24 +32,18 @@ int main(int argc, char **argv)
     viewer.add_pointcloud("sample cloud", cloud, 2.0);
     viewer.add_pointcloud("feature cloud", filtered_dca_features, 4.0);
     viewer.add_normals("normals", cloud, normals, 1, 0.03);
-
+    
     Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();
-    float theta = M_PI/4; // The angle of rotation in radians
-//    transform(0,0) = std::cos (theta);
-//    transform(0,1) = -sin(theta);
-//    transform(1,0) = sin (theta);
-//    transform(1,1) = std::cos (theta);
+    float theta = M_PI/8; // The angle of rotation in radians
+    transform(0,0) = std::cos (theta);
+    transform(0,1) = -sin(theta);
+    transform(1,0) = sin (theta);
+    transform(1,1) = std::cos (theta);
     transform (0,3) = 1.5;
 
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr trans_cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
     pcl::PointCloud<pcl::Normal>::Ptr trans_normals(new pcl::PointCloud<pcl::Normal>);
     pcl::transformPointCloud(*cloud, *trans_cloud, transform);
-    
-//    Eigen::Vector4d centroid;
-//    pcl::compute3DCentroid(*trans_cloud, centroid);
-//
-//    std::cout << "(trans) PCL centroid @ \n" << centroid << "\n";
-//    pcl::demeanPointCloud(*trans_cloud, centroid, *trans_cloud);
     
     pcl::PointCloud<DSADescriptor>::Ptr trans_dca_features(new pcl::PointCloud<DSADescriptor>);
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr trans_filtered_dca_features(new pcl::PointCloud<pcl::PointXYZRGBA>);

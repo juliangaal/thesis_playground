@@ -8,19 +8,19 @@ int main(int argc, char **argv)
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr unprocessed_cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
     
-    if (pcl::io::loadPCDFile<pcl::PointXYZRGBA>("../data/carpark_cloud_velodyne_hdl_32e.pcd", *unprocessed_cloud) == -1)
+    if (pcl::io::loadPCDFile<pcl::PointXYZRGBA>("../data/carpark_cloud_velodyne_hdl_32e.pcd", *cloud) == -1)
     {
         PCL_ERROR("Couldn't read file\n");
         return -1;
     }
     std::cout << "pcl version: " << PCL_VERSION_PRETTY << std::endl;
-    std::cout << "Loaded point cloud with " << unprocessed_cloud->points.size() << " points\n";
+    std::cout << "Loaded point cloud with " << cloud->points.size() << " points\n";
     
-    Eigen::Vector4d centroid;
-    pcl::compute3DCentroid(*unprocessed_cloud, centroid);
-    
-    std::cout << "PCL centroid @ \n" << centroid << "\n";
-    pcl::demeanPointCloud(*unprocessed_cloud, centroid, *cloud);
+//    Eigen::Vector4d centroid;
+//    pcl::compute3DCentroid(*cloud, centroid);
+//
+//    std::cout << "PCL centroid @ \n" << centroid << "\n";
+//    pcl::demeanPointCloud(*cloud, centroid, *cloud);
     
     float threshold = 0.1;
     int k_neighbors = 25;
