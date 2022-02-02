@@ -49,7 +49,6 @@ struct DSADescriptor
     float curvature;
     float avg_neighbor_dist;
     float neighbor_angle_sum;
-    size_t point_idx;
 };
 
 float angle(const Eigen::Vector3f& p1, const Eigen::Vector3f& p2);
@@ -58,9 +57,14 @@ float safe_acos(float f);
 
 float euclidean_distance(const pcl::PointXYZRGBA& p1, const pcl::PointXYZRGBA& p2);
 
-void calc_dca_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::PointCloud<DSADescriptor>::Ptr features,
-                       pcl::PointCloud<pcl::Normal>::Ptr pcl_normals, int k_neighbors);
+void calc_dca_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, std::vector<size_t> &feature2point_idxs,
+                       pcl::PointCloud<DSADescriptor>::Ptr features, pcl::PointCloud<pcl::Normal>::Ptr pcl_normals,
+                       int k_neighbors);
 
-void filter_dca_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::PointCloud<DSADescriptor>::Ptr features, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr significant_points, float threshold);
+void sort_feature2point_idx_by_signifance(std::vector<size_t> &feature2point_idxs,
+                                          pcl::PointCloud<DSADescriptor>::Ptr features);
+
+void apply_color_2_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, std::vector<size_t> &feature2point_idxs,
+                            pcl::PointCloud<pcl::PointXYZRGBA>::Ptr significant_points, float threshold);
 
 

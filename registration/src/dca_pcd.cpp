@@ -16,28 +16,24 @@ int main(int argc, char **argv)
     std::cout << "pcl version: " << PCL_VERSION_PRETTY << std::endl;
     std::cout << "Loaded point cloud with " << cloud->points.size() << " points\n";
     
-//    Eigen::Vector4d centroid;
-//    pcl::compute3DCentroid(*cloud, centroid);
-//
-//    std::cout << "PCL centroid @ \n" << centroid << "\n";
-//    pcl::demeanPointCloud(*cloud, centroid, *cloud);
-    
     float threshold = 0.1;
     int k_neighbors = 25;
     
+    std::vector<size_t> feature2points_idxs;
     pcl::PointCloud<DSADescriptor>::Ptr dca_features(new pcl::PointCloud<DSADescriptor>);
     pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr filtered_dca_features(new pcl::PointCloud<pcl::PointXYZRGBA>);
     
-    calc_dca_features(cloud, dca_features, normals, k_neighbors);
+    calc_dca_features(cloud, feature2points_idxs, dca_features, normals, k_neighbors);
     std::cout << "Calculated " << dca_features->size() << " features\n";
     std::cout << "Calculated " << normals->size() << " normals\n";
-
-    filter_dca_features(cloud, dca_features, filtered_dca_features, threshold);
+    
+    sort_feature2point_idx_by_signifance(feature2points_idxs, dca_features);
+    apply_color_2_features(cloud, feature2points_idxs, filtered_dca_features, threshold);
     std::cout << "Kept " << threshold*100 << "% of features, " << filtered_dca_features->size() << " in total\n";
     
     dca::Viewer viewer("PCL Viewer");
-    viewer.add_pointcloud("sample cloud", cloud, 2.0);
+    viewer.add_pointcloud("sample cloud", cloud, 1.0);
     viewer.add_pointcloud("feature cloud", filtered_dca_features, 4.0);
     viewer.add_normals("normals", cloud, normals, 1, 0.03);
     viewer.show_viewer();

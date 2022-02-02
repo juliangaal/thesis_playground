@@ -17,15 +17,17 @@ int main(int argc, char **argv)
     float threshold = 0.1;
     int k_neighbors = 10;
     
+    std::vector<size_t> feature2points_idxs;
     pcl::PointCloud<DSADescriptor>::Ptr dca_features(new pcl::PointCloud<DSADescriptor>);
     pcl::PointCloud<pcl::Normal>::Ptr normals(new pcl::PointCloud<pcl::Normal>);
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr filtered_dca_features(new pcl::PointCloud<pcl::PointXYZRGBA>);
-
-    calc_dca_features(cloud, dca_features, normals, k_neighbors);
+    
+    calc_dca_features(cloud, feature2points_idxs, dca_features, normals, k_neighbors);
     std::cout << "Calculated " << dca_features->size() << " features\n";
     std::cout << "Calculated " << normals->size() << " normals\n";
-
-    filter_dca_features(cloud, dca_features, filtered_dca_features, threshold);
+    
+    sort_feature2point_idx_by_signifance(feature2points_idxs, dca_features);
+    apply_color_2_features(cloud, feature2points_idxs, filtered_dca_features, threshold);
     std::cout << "Kept " << threshold*100 << "% of features, " << filtered_dca_features->size() << " in total\n";
     
     dca::Viewer viewer("PCL Viewer");
@@ -45,14 +47,16 @@ int main(int argc, char **argv)
     pcl::PointCloud<pcl::Normal>::Ptr trans_normals(new pcl::PointCloud<pcl::Normal>);
     pcl::transformPointCloud(*cloud, *trans_cloud, transform);
     
+    std::vector<size_t> trans_feature2points_idxs;
     pcl::PointCloud<DSADescriptor>::Ptr trans_dca_features(new pcl::PointCloud<DSADescriptor>);
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr trans_filtered_dca_features(new pcl::PointCloud<pcl::PointXYZRGBA>);
-
-    calc_dca_features(trans_cloud, trans_dca_features, trans_normals, k_neighbors);
+    
+    calc_dca_features(trans_cloud, trans_feature2points_idxs, trans_dca_features, trans_normals, k_neighbors);
     std::cout << "Calculated " << trans_dca_features->size() << " features\n";
     std::cout << "Calculated " << trans_normals->size() << " normals\n";
-
-    filter_dca_features(trans_cloud, trans_dca_features, trans_filtered_dca_features, threshold);
+    
+    sort_feature2point_idx_by_signifance(trans_feature2points_idxs, trans_dca_features);
+    apply_color_2_features(trans_cloud, trans_feature2points_idxs, trans_filtered_dca_features, threshold);
     std::cout << "Kept " << threshold*100 << "% of features, " << trans_filtered_dca_features->size() << " in total\n";
     
     viewer.add_pointcloud("trans sample cloud", trans_cloud, 2.0);
