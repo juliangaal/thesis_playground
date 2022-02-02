@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     std::cout << "Kept " << threshold*100 << "% of features, " << filtered_dca_features->size() << " in total\n";
     
     dca::Viewer viewer("PCL Viewer");
-    viewer.add_pointcloud("sample cloud", cloud, 1.0);
+    viewer.add_pointcloud("sample cloud", cloud, 3.0);
     viewer.add_pointcloud("feature cloud", filtered_dca_features, 4.0);
     viewer.add_normals("normals", cloud, normals, 1, 0.03);
     viewer.show_viewer();

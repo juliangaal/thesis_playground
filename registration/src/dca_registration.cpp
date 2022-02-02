@@ -36,12 +36,12 @@ int main(int argc, char **argv)
     viewer.add_normals("normals", cloud, normals, 1, 0.03);
     
     Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();
-    float theta = M_PI/8; // The angle of rotation in radians
+    float theta = M_PI/2; // The angle of rotation in radians
     transform(0,0) = std::cos (theta);
     transform(0,1) = -sin(theta);
     transform(1,0) = sin (theta);
     transform(1,1) = std::cos (theta);
-    transform (0,3) = 1.5;
+    transform (0,3) = 2.5;
 
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr trans_cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
     pcl::PointCloud<pcl::Normal>::Ptr trans_normals(new pcl::PointCloud<pcl::Normal>);

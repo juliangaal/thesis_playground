@@ -67,6 +67,12 @@ void calc_dca_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, std::vecto
             float curvature = 0;
             pcl::computePointNormal(neighborhood_pcl, normal, curvature);
 
+            // TODO what happens when rotation around demeaned pointcloud? Shouldn't be necessary in theory, then
+            if (normal.head<3>().dot(Eigen::Vector3f(centroid.x(), centroid.y(), centroid.z()).head<3>()) < 0)
+            {
+                normal = -normal;
+            }
+
             neighborhood.points.push_back(point_idx_search);
             pcl::Normal n(normal[0], normal[1], normal[2]);
             n.curvature = curvature;
@@ -79,9 +85,9 @@ void calc_dca_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, std::vecto
     for (size_t i = 0; i < demeaned_cloud->size(); ++i)
     {
         // Just for visuals
-        cloud->points[i].r = 0;
-        cloud->points[i].g = 255;
-        cloud->points[i].b = 0;
+        cloud->points[i].r = 90;
+        cloud->points[i].g = 90;
+        cloud->points[i].b = 90;
         cloud->points[i].a = 255;
     
         const auto &point = demeaned_cloud->points[i];
