@@ -36,7 +36,7 @@ target_include_directories(dca_pcd PRIVATE ${Eigen3_INCLUDE_DIRS} ${PCL_INCLUDE_
 target_link_libraries(dca_pcd PRIVATE fmt::fmt ${PCL_LIBRARIES} ${Boost_LIBRARIES})
 target_compile_options(dca_pcd PRIVATE -Wall -Weffc++ -Wuninitialized -Wno-dev)
 
-add_executable(dca_registration src/dca_registration.cpp src/dca.cpp src/viewer.cpp)
+add_executable(dca_registration src/dca_registration.cpp src/dca.cpp src/viewer.cpp src/util.cpp)
 target_include_directories(dca_registration PRIVATE ${Eigen3_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} src)
 target_link_libraries(dca_registration PRIVATE fmt::fmt ${PCL_LIBRARIES} ${Boost_LIBRARIES})
 target_compile_options(dca_registration PRIVATE -Wall -Weffc++ -Wuninitialized -Wno-dev)

@@ -1,32 +1,8 @@
 #include "dca.h"
+#include "util.h"
 
-float angle(const Eigen::Vector3f &p1, const Eigen::Vector3f &p2)
-{
-    return safe_acos(p1.dot(p2) / (p1.norm() * p2.norm()));
-}
-
-float safe_acos(float f)
-{
-    if (f < -1.0f)
-    {
-        return M_PI;
-    }
-    
-    if (f > 1.0f)
-    {
-        return 0.0f;
-    }
-    
-    return std::acos(f);
-}
-
-float euclidean_distance(const pcl::PointXYZRGBA &p1, const pcl::PointXYZRGBA &p2)
-{
-    return (Eigen::Vector3f(p1.x, p1.y, p1.z) - Eigen::Vector3f(p2.x, p2.y, p2.z)).norm();
-}
-
-void calc_dca_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, std::vector<size_t> &feature2point_idxs,
-                       pcl::PointCloud<DSADescriptor>::Ptr features, pcl::PointCloud<pcl::Normal>::Ptr pcl_normals,
+void dca::calc_dca_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, std::vector<size_t> &feature2point_idxs,
+                       pcl::PointCloud<dca::DSADescriptor>::Ptr features, pcl::PointCloud<pcl::Normal>::Ptr pcl_normals,
                        int k_neighbors)
 {
     if (k_neighbors < 1)
@@ -104,18 +80,18 @@ void calc_dca_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, std::vecto
         for (const auto &neighbor_idx: neighborhood[i])
         {
             const auto &neighbor = demeaned_cloud->points[neighbor_idx];
-            neighbor_angle_sum += angle(Eigen::Vector3f(normal.normal), Eigen::Vector3f(pcl_normals->points[neighbor_idx].normal));
-            neighbor_dist_sum += euclidean_distance(point, neighbor);
+            neighbor_angle_sum += util::angle(Eigen::Vector3f(normal.normal), Eigen::Vector3f(pcl_normals->points[neighbor_idx].normal));
+            neighbor_dist_sum += util::distance(point, neighbor);
         }
-
+        std::cout << "curvature: " << normal.curvature << "\n";
         auto n_neighbors_f = static_cast<float>(neighborhood[i].size());
         float avg_neighbor_dist = neighbor_dist_sum / n_neighbors_f;
-        features->points[i] = DSADescriptor{normal.curvature, avg_neighbor_dist, neighbor_angle_sum};
+        features->points[i] = dca::DSADescriptor{normal.curvature, avg_neighbor_dist, neighbor_angle_sum};
         feature2point_idxs[i] = i; // std::iota would be unnecessary loop, TODO do sorting of cloud directly
     }
 }
 
-void apply_color_2_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, std::vector<size_t> &feature2point_idxs,
+void dca::apply_color_2_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, std::vector<size_t> &feature2point_idxs,
                             pcl::PointCloud<pcl::PointXYZRGBA>::Ptr significant_points, float threshold)
 {
     significant_points->points.resize(feature2point_idxs.size() * threshold);
@@ -131,11 +107,11 @@ void apply_color_2_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, std::
     }
 }
 
-void sort_feature2point_idx_by_signifance(std::vector <size_t> &feature2point_idxs,
-                                          pcl::PointCloud<DSADescriptor>::Ptr features)
+void dca::sort_feature2point_idx_by_signifance(std::vector <size_t> &feature2point_idxs,
+                                          pcl::PointCloud<dca::DSADescriptor>::Ptr features)
 {
     std::sort(feature2point_idxs.begin(), feature2point_idxs.end(),
-              [&](const size_t idx1, const size_t idx2)
+              [&](const auto idx1, const auto idx2)
               {
                   return features->points[idx1].curvature > features->points[idx2].curvature;
               });
