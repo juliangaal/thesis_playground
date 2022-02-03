@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.0.2)
 project(registration)
 
+set(CMAKE_CXX_STANDARD 17)
+
 Include(FetchContent)
 FetchContent_Declare(
         Catch2
@@ -41,6 +43,6 @@ target_include_directories(dca_registration PRIVATE ${Eigen3_INCLUDE_DIRS} ${PCL
 target_link_libraries(dca_registration PRIVATE fmt::fmt ${PCL_LIBRARIES} ${Boost_LIBRARIES})
 target_compile_options(dca_registration PRIVATE -Wall -Weffc++ -Wuninitialized -Wno-dev)
 
-add_executable(registration_test src/test.cpp src/dca.cpp)
-target_include_directories(registration_test PRIVATE ${Eigen3_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} ${Catch2_INCLUDE_DIRS} src)
-target_link_libraries(registration_test PRIVATE Catch2::Catch2WithMain fmt::fmt ${PCL_LIBRARIES})
+add_executable(test src/test.cpp src/dca.cpp src/util.cpp)
+target_include_directories(test PRIVATE ${Eigen3_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} ${Catch2_INCLUDE_DIRS} src)
+target_link_libraries(test PRIVATE Catch2::Catch2WithMain fmt::fmt ${PCL_LIBRARIES})

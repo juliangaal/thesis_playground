@@ -12,21 +12,20 @@
 namespace dca
 {
 
-struct DSADescriptor
+struct DCADescriptor
 {
     float curvature;
     float avg_neighbor_dist;
     float neighbor_angle_sum;
+    size_t point_idx;
 };
 
-void calc_dca_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, std::vector<size_t> &feature2point_idxs,
-                       pcl::PointCloud<DSADescriptor>::Ptr features, pcl::PointCloud<pcl::Normal>::Ptr pcl_normals,
-                       int k_neighbors);
+void calc_dca_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::PointCloud<DCADescriptor>::Ptr features,
+                       pcl::PointCloud<pcl::Normal>::Ptr pcl_normals, int k_neighbors);
 
-void sort_feature2point_idx_by_signifance(std::vector<size_t> &feature2point_idxs,
-                                          pcl::PointCloud<DSADescriptor>::Ptr features);
+void sort_features_by_significance(pcl::PointCloud<dca::DCADescriptor>::Ptr features);
 
-void apply_color_2_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, std::vector<size_t> &feature2point_idxs,
-                            pcl::PointCloud<pcl::PointXYZRGBA>::Ptr significant_points, float threshold);
+void apply_color_2_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud,
+                            pcl::PointCloud<dca::DCADescriptor>::Ptr features, float threshold);
 
 } // end namespace dca

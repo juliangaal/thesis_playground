@@ -19,7 +19,7 @@ void util::to_eigen(const std::vector<int>& indices, const flann::Matrix<double>
 }
 
 void util::features2flannmatrix(const std::vector<std::vector<size_t>> &sorted_features_idx,
-                                std::vector<pcl::PointCloud<dca::DSADescriptor>::Ptr> dca_features,
+                                std::vector<pcl::PointCloud<dca::DCADescriptor>::Ptr> dca_features,
                                 flann::Matrix<double> &points)
 {
     if (sorted_features_idx.empty() or (sorted_features_idx.size() != dca_features.size()))
