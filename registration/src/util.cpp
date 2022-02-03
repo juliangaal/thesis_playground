@@ -37,7 +37,7 @@ void util::features2flannmatrix(const std::vector<std::vector<size_t>> &sorted_f
     points = flann::Matrix<double>(new double[size * 3], size, 3);
 
     int i = 0;
-    for (int j = 0; j < sorted_features_idx.size(); ++j)
+    for (size_t j = 0; j < sorted_features_idx.size(); ++j)
     {
         const auto& indices = sorted_features_idx[j];
         const auto& features = dca_features[j];

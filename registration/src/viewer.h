@@ -1,5 +1,7 @@
 #pragma once
 
+#include "dca.h"
+
 #include <pcl/point_cloud.h>
 #include <pcl/point_types.h>
 #include <pcl/visualization/cloud_viewer.h>
@@ -29,7 +31,14 @@ public:
                 pcl::PointCloud<pcl::Normal>::Ptr normals, int level, float scale);
     
     void show_viewer();
-
+    
+    void add_correspondences(const std::vector<std::vector<int>> &flann_indices,
+                             const std::vector<std::vector<float>> &flann_distances,
+                             const pcl::PointCloud<dca::DCADescriptor>::Ptr &dca_features,
+                             const pcl::PointCloud<dca::DCADescriptor>::Ptr &trans_dca_features,
+                             const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud,
+                             const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &trans_cloud, float dist_threshold);
+    
 private:
     pcl::visualization::PCLVisualizer viewer;
 };

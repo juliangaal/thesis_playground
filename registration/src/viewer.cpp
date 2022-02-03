@@ -42,3 +42,29 @@ void Viewer::show_viewer()
         std::this_thread::sleep_for(std::chrono::milliseconds(100));
     }
 }
+
+void Viewer::add_correspondences(const std::vector<std::vector<int>> &flann_indices,
+                                 const std::vector<std::vector<float>> &flann_distances,
+                                 const pcl::PointCloud<dca::DCADescriptor>::Ptr &dca_features,
+                                 const pcl::PointCloud<dca::DCADescriptor>::Ptr &trans_dca_features,
+                                 const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud,
+                                 const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &trans_cloud, float dist_threshold)
+{
+    for (size_t i = 0; i < flann_indices.size(); ++i)
+    {
+        auto nni = flann_indices[i][0];
+        auto dist = flann_distances[i][0];
+        if (dist < 0.0001)
+        {
+            // get index of point in trans_cloud from query features trans_dca_features
+            const auto& p1_idx = trans_dca_features->points[i].point_idx;
+            auto p1 = trans_cloud->points[p1_idx];
+            // get index of point in cloud from database features dca_features
+            const auto& p2_idx = dca_features->points[nni].point_idx;
+            auto p2 = cloud->points[p2_idx];
+            
+            auto id = std::to_string(i);
+            viewer.addLine(p1, p2, id);
+        }
+    }
+}

@@ -40,7 +40,7 @@ target_compile_options(dca_pcd PRIVATE -Wall -Weffc++ -Wuninitialized -Wno-dev)
 
 add_executable(dca_registration src/dca_registration.cpp src/dca.cpp src/viewer.cpp src/util.cpp)
 target_include_directories(dca_registration PRIVATE ${Eigen3_INCLUDE_DIRS} ${PCL_INCLUDE_DIRS} src)
-target_link_libraries(dca_registration PRIVATE fmt::fmt ${PCL_LIBRARIES} ${Boost_LIBRARIES})
+target_link_libraries(dca_registration PRIVATE ${PCL_LIBRARIES} ${Boost_LIBRARIES})
 target_compile_options(dca_registration PRIVATE -Wall -Weffc++ -Wuninitialized -Wno-dev)
 
 add_executable(test src/test.cpp src/dca.cpp src/util.cpp)

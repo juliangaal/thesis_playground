@@ -51,7 +51,7 @@ void features2flannmatrix(const P &pcl, flann::Matrix<T> &dataset, float thresho
     const auto& size = static_cast<size_t>(pcl->size() * threshold);
     dataset = flann::Matrix<T>(new T[size * 3], size, 3);
 
-    for (int i = 0; i < size; ++i)
+    for (auto i = 0u; i < size; ++i)
     {
         dataset[i][0] = pcl->points[i].curvature;
         dataset[i][1] = pcl->points[i].avg_neighbor_dist;

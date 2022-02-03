@@ -35,7 +35,7 @@ int main(int argc, char **argv)
 
     // transform pointcloud 1
     Eigen::Matrix4f transform = Eigen::Matrix4f::Identity();
-    float theta = M_PI/2; // The angle of rotation in radians
+    float theta = M_PI/8; // The angle of rotation in radians
     transform(0,0) = std::cos (theta);
     transform(0,1) = -sin(theta);
     transform(1,0) = sin (theta);
@@ -71,30 +71,14 @@ int main(int argc, char **argv)
     std::vector<std::vector<int>> indices;
     std::vector<std::vector<float>> dists;
     kdtree.knnSearch(trans_dataset, indices, dists, 1, flann::SearchParams(flann::FLANN_CHECKS_UNLIMITED));
-
-    for (auto i = 0; i < indices.size(); ++i)
-    {
-        auto nni = indices[i][0];
-        auto dist = dists[i][0];
-        if (dist < 0.0001)
-        {
-            std::cout << "feature: " << trans_dca_features->points[i].curvature << " / "
-                      << trans_dca_features->points[i].avg_neighbor_dist << " / "
-                      << trans_dca_features->points[i].neighbor_angle_sum << \
-            "with closest feature: " << dca_features->points[nni].curvature << " / "
-                      << dca_features->points[nni].avg_neighbor_dist << " / "
-                      << dca_features->points[nni].neighbor_angle_sum << \
-            "with dist: " << dists[i][0] << "\n";
-
-        }
-    }
-
+    
     // Create viewer and fill with relevant data
     dca::Viewer viewer("PCL Viewer");
     viewer.add_pointcloud("cloud", cloud, 3.0);
     viewer.add_normals("normals", cloud, normals, 2, 0.02);
     viewer.add_pointcloud("trans cloud", trans_cloud, 3.0);
     viewer.add_normals("trans normals", trans_cloud, trans_normals, 1, 0.03);
+    viewer.add_correspondences(indices, dists, dca_features, trans_dca_features, cloud, trans_cloud, 0);
     viewer.show_viewer();
 
     return 0;
