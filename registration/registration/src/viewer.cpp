@@ -16,7 +16,7 @@ Viewer::Viewer(const std::string &name)
     viewer.setBackgroundColor(0, 0, 0);
 }
 
-void Viewer::add_pointcloud(std::string id, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, double size)
+void Viewer::add_pointcloud(std::string id, const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud, double size)
 {
     pcl::visualization::PointCloudColorHandlerRGBAField<pcl::PointXYZRGBA> rgb(cloud);
     viewer.addPointCloud<pcl::PointXYZRGBA>(cloud, rgb, id);
@@ -28,8 +28,8 @@ void Viewer::set_point_size(std::string id, double size)
     viewer.setPointCloudRenderingProperties(pcl::visualization::PCL_VISUALIZER_POINT_SIZE, size, id);
 }
 
-void Viewer::add_normals(std::string id, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud,
-                         pcl::PointCloud<pcl::Normal>::Ptr normals, int level, float scale)
+void Viewer::add_normals(std::string id, const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud,
+                         const pcl::PointCloud<pcl::Normal>::Ptr &normals, int level, float scale)
 {
     viewer.addPointCloudNormals<pcl::PointXYZRGBA, pcl::Normal>(cloud, normals, level, scale, id);
 }
@@ -54,7 +54,7 @@ void Viewer::add_correspondences(const std::vector<std::vector<int>> &flann_indi
     {
         auto nni = flann_indices[i][0];
         auto dist = flann_distances[i][0];
-        if (dist < 0.0001)
+        if (dist < dist_threshold)
         {
             // get index of point in trans_cloud from query features trans_dca_features
             const auto& p1_idx = trans_dca_features->points[i].point_idx;
@@ -67,4 +67,19 @@ void Viewer::add_correspondences(const std::vector<std::vector<int>> &flann_indi
             viewer.addLine(p1, p2, id);
         }
     }
+}
+
+void Viewer::add_point(const std::string &id, Eigen::Vector4d &matrix, double size, int r, int g, int b)
+{
+    pcl::PointCloud<pcl::PointXYZRGBA>::Ptr temp(new pcl::PointCloud<pcl::PointXYZRGBA>);
+    pcl::PointXYZRGBA ptemp;
+    ptemp.x = matrix.x();
+    ptemp.y = matrix.y();
+    ptemp.z = matrix.z();
+    ptemp.r = r;
+    ptemp.g = g;
+    ptemp.b = b;
+    ptemp.a = 255;
+    temp->points.push_back(ptemp);
+    add_pointcloud(id, temp, size);
 }

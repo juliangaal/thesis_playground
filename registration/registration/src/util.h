@@ -41,21 +41,18 @@ typename pcl::PointCloud<T>::Ptr merge_pointclouds(const typename pcl::PointClou
     return pcl3;
 }
 
-void features2flannmatrix(const std::vector<std::vector<size_t>> &sorted_features_idx,
-                          std::vector<pcl::PointCloud<dca::DCADescriptor>::Ptr> dca_features,
-                          flann::Matrix<double> &points);
-
 template<typename P, typename T>
 void features2flannmatrix(const P &pcl, flann::Matrix<T> &dataset, float threshold)
 {
     const auto& size = static_cast<size_t>(pcl->size() * threshold);
-    dataset = flann::Matrix<T>(new T[size * 3], size, 3);
+    dataset = flann::Matrix<T>(new T[size * 4], size, 4);
 
     for (auto i = 0u; i < size; ++i)
     {
-        dataset[i][0] = pcl->points[i].curvature;
-        dataset[i][1] = pcl->points[i].avg_neighbor_dist;
-        dataset[i][2] = pcl->points[i].neighbor_angle_sum;
+        const auto& feature = pcl->points[i];
+        dataset[i][0] = feature.curvature;
+        dataset[i][1] = feature.avg_neighbor_dist;
+        dataset[i][2] = feature.neighbor_angle_sum;
     }
 }
 
