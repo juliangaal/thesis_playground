@@ -22,13 +22,13 @@ public:
     
     ~Viewer() = default;
     
-    void add_pointcloud(std::string id, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, double size);
+    void add_pointcloud(std::string id, const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud, double size);
     
     void set_point_size(std::string id, double size);
     
     void
-    add_normals(std::string id, pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud,
-                pcl::PointCloud<pcl::Normal>::Ptr normals, int level, float scale);
+    add_normals(std::string id, const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud,
+                const pcl::PointCloud<pcl::Normal>::Ptr &normals, int level, float scale);
     
     void show_viewer();
     
@@ -39,6 +39,8 @@ public:
                              const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud,
                              const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &trans_cloud, float dist_threshold);
     
+    void add_point(const std::string &id, Eigen::Vector4d &matrix, double size, int r, int g, int b);
+
 private:
     pcl::visualization::PCLVisualizer viewer;
 };

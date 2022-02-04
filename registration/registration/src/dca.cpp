@@ -1,15 +1,15 @@
 #include "dca.h"
 #include "util.h"
 
-void dca::calc_dca_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::PointCloud<DCADescriptor>::Ptr features,
-                            pcl::PointCloud<pcl::Normal>::Ptr pcl_normals, int k_neighbors)
+void
+dca::calc_dca_features(const pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud, Eigen::Vector4d &centroid, pcl::PointCloud<dca::DCADescriptor>::Ptr &features,
+                       pcl::PointCloud<pcl::Normal>::Ptr &pcl_normals, int k_neighbors)
 {
     if (k_neighbors < 1)
     {
         throw std::runtime_error("invalid number of k neighbors of knn search");
     }
     
-    Eigen::Vector4d centroid;
     pcl::PointCloud<pcl::PointXYZRGBA>::Ptr demeaned_cloud(new pcl::PointCloud<pcl::PointXYZRGBA>);
     pcl::compute3DCentroid(*cloud, centroid);
     pcl::demeanPointCloud(*cloud, centroid, *demeaned_cloud);
@@ -88,10 +88,10 @@ void dca::calc_dca_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud, pcl::
     }
 }
 
-void dca::apply_color_2_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud,
-                                 pcl::PointCloud<dca::DCADescriptor>::Ptr features, float threshold)
+void dca::apply_color_2_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr &cloud,
+                                 const pcl::PointCloud<dca::DCADescriptor>::Ptr &features, float threshold)
 {
-    size_t n_colored_points = static_cast<size_t>(features->points.size() * threshold);
+    auto n_colored_points = static_cast<size_t>(features->points.size() * threshold);
     for (size_t i = 0; i < n_colored_points; ++i)
     {
         auto feature_idx = features->points[i].point_idx;
@@ -102,7 +102,7 @@ void dca::apply_color_2_features(pcl::PointCloud<pcl::PointXYZRGBA>::Ptr cloud,
     }
 }
 
-void dca::sort_features_by_significance(pcl::PointCloud<dca::DCADescriptor>::Ptr features)
+void dca::sort_features_by_significance(pcl::PointCloud<dca::DCADescriptor>::Ptr& features)
 {
     std::sort(features->begin(), features->end(),
               [&](const auto& feat1, const auto& feat2)

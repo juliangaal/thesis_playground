@@ -1,6 +1,11 @@
 reated by https://www.toptal.com/developers/gitignore/api/python,c++,c,clion,intellij
 # Edit at https://www.toptal.com/developers/gitignore?templates=python,c++,c,clion,intellij
 
+### ROS ###
+
+devel/
+.catkin_workspace
+
 ### C ###
 # Prerequisites
 *.d
