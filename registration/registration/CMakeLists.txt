@@ -25,7 +25,7 @@ find_package(Boost 1.54 COMPONENTS filesystem system program_options REQUIRED)
 
 add_executable(umeyama src/umeyama.cpp)
 target_include_directories(umeyama PRIVATE ${Eigen3_INCLUDE_DIRS} ${Catch2_INCLUDE_DIRS} src)
-target_link_libraries(umeyama PRIVATE Catch2::Catch2WithMain fmt::fmt)
+target_link_libraries(umeyama PRIVATE Catch2::Catch2WithMain)
 target_compile_options(umeyama PRIVATE -Wall -Weffc++ -Wuninitialized)
 
 add_executable(pcl_normals src/pcl_normals.cpp)

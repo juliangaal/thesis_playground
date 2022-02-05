@@ -36,6 +36,7 @@ void Viewer::add_normals(std::string id, const pcl::PointCloud<pcl::PointXYZRGBA
 
 void Viewer::show_viewer()
 {
+    viewer.addCoordinateSystem();
     while (!viewer.wasStopped())
     {
         viewer.spinOnce(100);
@@ -64,7 +65,7 @@ void Viewer::add_correspondences(const std::vector<std::vector<int>> &flann_indi
             auto p2 = cloud->points[p2_idx];
             
             auto id = std::to_string(i);
-            viewer.addLine(p1, p2, id);
+            viewer.addLine(p1, p2, 0, 80, 0, id);
         }
     }
 }

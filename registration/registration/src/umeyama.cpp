@@ -35,9 +35,11 @@ int main() {
     MatrixXd dst_block = dst.block<3,3>(0,0);
     cout << "src_block:\n" << src_block << "\n";
     cout << "dst_block:\n" << dst_block << "\n";
-    
-    MatrixXd cR_t_umeyama = umeyama(src_block, dst_block).inverse();
+
+    MatrixXd cR_t_umeyama = umeyama(dst_block, src_block).inverse();
     cout << "cR_t_umeyama:\n" << cR_t_umeyama << "\n";
     cout << "error: " << calc_error(cR_t_umeyama, src, dst) << endl;
+    cout << "result: \n" << cR_t_umeyama * src << "\n vs \n" << dst << "\n";
+    return 0;
 }
 
