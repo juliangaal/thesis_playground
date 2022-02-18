@@ -1,15 +1,12 @@
+#include "hello_world.h"
 #include <stdio.h>
 
-__global__ void hello_from_gpu(void)
+__global__ void hello_from_gpu_krnl()
 {
-	printf("Hello from GPU\n");
+    printf("Hello from GPU\n");
 }
 
-int main(void)
+void cuda::hello_from_gpu()
 {
-	printf("Hello World from CPU!\n");
-	
-	hello_from_gpu<<<1, 10>>>();
-	cudaDeviceReset();
-	return 0;
+    hello_from_gpu_krnl<<<1, 10>>>();
 }
