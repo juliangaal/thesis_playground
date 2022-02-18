@@ -9,4 +9,3 @@ int main(void)
     cuda::reset_device();
     return 0;
 }
-
