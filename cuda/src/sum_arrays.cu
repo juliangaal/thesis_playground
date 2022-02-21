@@ -6,7 +6,7 @@
 
 /*
  * This example demonstrates a simple vector sum on the GPU and on the host.
- * sumArraysOnGPU splits the work of the vector sum across CUDA threads on the
+ * sumMatrixOnGPU2D splits the work of the vector sum across CUDA threads on the
  * GPU. Only a single thread block is used in this small case, for simplicity.
  * sumArraysOnHost sequentially iterates through vector elements on the host.
  * This version of sumArrays adds host timers to measure GPU and CPU
@@ -52,12 +52,18 @@ void sumArraysOnHost(float *A, float *B, float *C, const int N)
 }
 __global__ void sumArraysOnGPU(float *A, float *B, float *C, const int N)
 {
-    int i = blockIdx.x * blockDim.x + threadIdx.x;
+    size_t i = blockIdx.x * blockDim.x + threadIdx.x;
 
     if (i < N)
     {
         C[i] = A[i] + B[i];
     }
+}
+
+__global__ void sumArraysOnGPUUnchecked(float *A, float *B, float *C, const int N)
+{
+    size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+    C[i] = A[i] + B[i];
 }
 
 int main(void)
@@ -118,7 +124,16 @@ int main(void)
     sumArraysOnGPU<<<grid, block>>>(d_A, d_B, d_C, nElem);
     CHECK(cudaDeviceSynchronize());
     elapse = seconds() - start;
-    printf("sumArraysOnGPU<<<%d,%d>>>  time elapsed %f sec\n", grid.x, block.x, elapse);
+    printf("sumMatrixOnGPU2D<<<%d,%d>>>  time elapsed %f sec\n", grid.x, block.x, elapse);
+
+    // check kernel error
+    CHECK(cudaGetLastError()) ;
+
+    start = seconds();
+    sumArraysOnGPUUnchecked<<<grid, block>>>(d_A, d_B, d_C, nElem);
+    CHECK(cudaDeviceSynchronize());
+    elapse = seconds() - start;
+    printf("sumArraysOnGPUUnchecked<<<%d,%d>>>  time elapsed %f sec\n", grid.x, block.x, elapse);
 
     // check kernel error
     CHECK(cudaGetLastError()) ;

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.21)
+cmake_minimum_required(VERSION 3.16)
 project(cuda CUDA CXX C)
 
 set(CMAKE_CUDA_STANDARD 14)
@@ -32,3 +32,12 @@ set_target_properties(checkDimension PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
 add_executable(defineGridBlock src/defineGridBlock.cu)
 set_target_properties(defineGridBlock PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+add_executable(checkThreadIndex_cu src/checkThreadIndex.cu)
+set_target_properties(checkThreadIndex_cu PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+add_executable(sumMatrix_2dgrid_2dblock src/sumMatrix_2dgrid_2dblock.cu)
+set_target_properties(sumMatrix_2dgrid_2dblock PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+add_executable(sumMatrix_2dgrid_1dblock src/sumMatrix_2dgrid_1dblock.cu)
+set_target_properties(sumMatrix_2dgrid_1dblock PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
