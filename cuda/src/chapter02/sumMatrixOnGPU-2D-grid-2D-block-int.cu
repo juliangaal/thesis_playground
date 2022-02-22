@@ -5,7 +5,7 @@
 
 #include "common.h"
 
-void checkResult(float *hostRef, float *gpuRef, const int N)
+void checkResult(int *hostRef, int *gpuRef, const int N)
 {
     double epsilon = 1.0E-8;
 
@@ -23,12 +23,12 @@ void checkResult(float *hostRef, float *gpuRef, const int N)
     printf("Arrays match.\n\n");
 }
 
-void sumMatrixOnHost(float *A, float *B, float *C, const int nx,
+void sumMatrixOnHost(int *A, int *B, int *C, const int nx,
                      const int ny)
 {
-    float *ia = A;
-    float *ib = B;
-    float *ic = C;
+    int *ia = A;
+    int *ib = B;
+    int *ic = C;
 
     for (int iy = 0; iy < ny; iy++)
     {
@@ -44,7 +44,7 @@ void sumMatrixOnHost(float *A, float *B, float *C, const int nx,
     }
 }
 
-void initialData(float *ip, int size)
+void initialData(int *ip, int size)
 {
     // generate different seed for random number
     time_t t;
@@ -52,16 +52,18 @@ void initialData(float *ip, int size)
 
     for (int i = 0; i < size; i++)
     {
-        ip[i] = (float)(rand() & 0xFF ) / 10.0f;
+        ip[i] = (int)(rand() & 0xFF ) / 10;
     }
 }
 
 
-__global__ void sumMatrixOnGPU1D(const float *A, const float *B, float *C, int nx, int ny)
+__global__ void sumMatrixOnGPU2D(const  int *A, const  int *B,  int *C, int nx, int ny)
 {
-    // data point in kernel refers to this block coordinate in 2D matrix
+    // data point in kernel refers to these 2d coordinates in 2D matrix
     auto ix = blockIdx.x * blockDim.x + threadIdx.x;
-    auto iy = blockIdx.y;
+    auto iy = blockIdx.y * blockDim.y + threadIdx.y;
+
+    // because 2d matrix is stored linearly, flatten indices
     auto idx = iy * nx + ix;
 
     if (ix < nx && iy < ny)
@@ -83,16 +85,16 @@ int main()
     int ny = 1 << 14;
 
     int nxy = nx * ny;
-    int nBytes = nxy * sizeof(float);
+    int nBytes = nxy * sizeof( int);
     printf("Matrix size: nx %d ny %d\n", nx, ny);
 
     // initialize arrays (host)
-    float *h_A, *h_B, *hostRef, *gpuRef;
+     int *h_A, *h_B, *hostRef, *gpuRef;
     auto start = seconds();
-    h_A     = (float*)malloc(nBytes);
-    h_B     = (float*)malloc(nBytes);
-    hostRef = (float*)malloc(nBytes);
-    gpuRef  = (float*)malloc(nBytes);
+    h_A     = (int*)malloc(nBytes);
+    h_B     = (int*)malloc(nBytes);
+    hostRef = (int*)malloc(nBytes);
+    gpuRef  = (int*)malloc(nBytes);
 
     memset(hostRef, 0, nBytes);
     memset(gpuRef, 0, nBytes);
@@ -109,11 +111,11 @@ int main()
     printf("sumMatrixOnHost elapsed %f sec\n", end);
 
     // initialize arrays (device) and malloc device global memory
-    float *d_A, *d_B, *d_C;
+     int *d_A, *d_B, *d_C;
     start = seconds();
-    CHECK(cudaMalloc((float**)&d_A, nBytes));
-    CHECK(cudaMalloc((float**)&d_B, nBytes));
-    CHECK(cudaMalloc((float**)&d_C, nBytes));
+    CHECK(cudaMalloc((int**)&d_A, nBytes));
+    CHECK(cudaMalloc((int**)&d_B, nBytes));
+    CHECK(cudaMalloc((int**)&d_C, nBytes));
 
     // copy host data to device data
     CHECK(cudaMemcpy(d_A, h_A, nBytes, cudaMemcpyHostToDevice));
@@ -123,11 +125,13 @@ int main()
     printf("Cuda memory alloc: %f sec\n", end);
 
     // launch kernel and wait for results
-    dim3 block(128);
-    dim3 grid((nx + block.x - 1) / block.x, ny);
+    int dimx = 32;
+    int dimy = 32;
+    dim3 block(dimx, dimy);
+    dim3 grid((nx + block.x - 1) / block.x, (ny + block.y - 1) / block.y);
 
     start = seconds();
-    sumMatrixOnGPU1D<<<grid, block>>>(d_A, d_B, d_C, nx, ny);
+    sumMatrixOnGPU2D<<<grid, block>>>(d_A, d_B, d_C, nx, ny);
     CHECK(cudaDeviceSynchronize());
     end = seconds() - start;
     printf("sumMatrixOnGPU2D <<<(%d,%d), (%d,%d)>>> elapsed %f sec\n", grid.x, grid.y, block.x, block.y, end);
@@ -135,7 +139,7 @@ int main()
     // copy device data to host
     CHECK(cudaMemcpy(gpuRef, d_C, nBytes,cudaMemcpyDeviceToHost));
     end = seconds() - start;
-    printf("Result in host memory after %f sec", end);
+    printf("Result in host memory after %f sec\n", end);
 
     // compare
     checkResult(hostRef, gpuRef, nxy);
