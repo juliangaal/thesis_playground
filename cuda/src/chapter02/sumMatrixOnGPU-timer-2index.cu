@@ -1,12 +1,12 @@
+#include "common.h"
 #include <cuda_runtime.h>
 #include <stdio.h>
 #include <time.h>
-
-#include "common.h"
+#include <assert.h>
 
 /*
  * This example demonstrates a simple vector sum on the GPU and on the host.
- * sumMatrixOnGPU2D splits the work of the vector sum across CUDA threads on the
+ * sumArraysOnGPU splits the work of the vector sum across CUDA threads on the
  * GPU. Only a single thread block is used in this small case, for simplicity.
  * sumArraysOnHost sequentially iterates through vector elements on the host.
  * This version of sumArrays adds host timers to measure GPU and CPU
@@ -52,7 +52,14 @@ void sumArraysOnHost(float *A, float *B, float *C, const int N)
 }
 __global__ void sumArraysOnGPU(float *A, float *B, float *C, const int N)
 {
-    size_t i = blockIdx.x * blockDim.x + threadIdx.x;
+    int i = blockIdx.x * blockDim.x + threadIdx.x;
+
+    if (i < N)
+    {
+        C[i] = A[i] + B[i];
+    }
+
+    i += N/2;
 
     if (i < N)
     {
@@ -60,14 +67,10 @@ __global__ void sumArraysOnGPU(float *A, float *B, float *C, const int N)
     }
 }
 
-__global__ void sumArraysOnGPUUnchecked(float *A, float *B, float *C, const int N)
+int main(int argc, char **argv)
 {
-    size_t i = blockIdx.x * blockDim.x + threadIdx.x;
-    C[i] = A[i] + B[i];
-}
+    printf("%s Starting...\n", argv[0]);
 
-int main(void)
-{
     // set up device
     int dev = 0;
     cudaDeviceProp deviceProp;
@@ -88,22 +91,22 @@ int main(void)
     hostRef = (float*)malloc(nBytes);
     gpuRef  = (float*)malloc(nBytes);
 
-    double start, elapse;
+    double iStart, iElaps;
 
     // initialize data at host side
-    start = seconds();
+    iStart = seconds();
     initialData(h_A, nElem);
     initialData(h_B, nElem);
-    elapse = seconds() - start;
-    printf("initialData time elapsed %f sec\n", elapse);
+    iElaps = seconds() - iStart;
+    printf("initialData Time elapsed %f sec\n", iElaps);
     memset(hostRef, 0, nBytes);
     memset(gpuRef,  0, nBytes);
 
     // add vector at host side for result checks
-    start = seconds();
+    iStart = seconds();
     sumArraysOnHost(h_A, h_B, hostRef, nElem);
-    elapse = seconds() - start;
-    printf("sumArraysOnHost time elapsed %f sec\n", elapse);
+    iElaps = seconds() - iStart;
+    printf("sumArraysOnHost Time elapsed %f sec\n", iElaps);
 
     // malloc device global memory
     float *d_A, *d_B, *d_C;
@@ -114,26 +117,20 @@ int main(void)
     // transfer data from host to device
     CHECK(cudaMemcpy(d_A, h_A, nBytes, cudaMemcpyHostToDevice));
     CHECK(cudaMemcpy(d_B, h_B, nBytes, cudaMemcpyHostToDevice));
+    CHECK(cudaMemcpy(d_C, gpuRef, nBytes, cudaMemcpyHostToDevice));
 
     // invoke kernel at host side
-    int iLen = 512;
-    dim3 block(iLen);
-    dim3 grid((nElem + block.x - 1) / block.x);
+    dim3 block(1024);
+    dim3 grid((nElem + block.x - 1) / block.x / 2);
 
-    start = seconds();
+    assert(grid.x * block.x == nElem/2);
+
+    iStart = seconds();
     sumArraysOnGPU<<<grid, block>>>(d_A, d_B, d_C, nElem);
     CHECK(cudaDeviceSynchronize());
-    elapse = seconds() - start;
-    printf("sumMatrixOnGPU2D<<<%d,%d>>>  time elapsed %f sec\n", grid.x, block.x, elapse);
-
-    // check kernel error
-    CHECK(cudaGetLastError()) ;
-
-    start = seconds();
-    sumArraysOnGPUUnchecked<<<grid, block>>>(d_A, d_B, d_C, nElem);
-    CHECK(cudaDeviceSynchronize());
-    elapse = seconds() - start;
-    printf("sumArraysOnGPUUnchecked<<<%d,%d>>>  time elapsed %f sec\n", grid.x, block.x, elapse);
+    iElaps = seconds() - iStart;
+    printf("sumArraysOnGPU <<<  %d, %d  >>>  Time elapsed %f sec\n", grid.x,
+           block.x, iElaps);
 
     // check kernel error
     CHECK(cudaGetLastError()) ;
