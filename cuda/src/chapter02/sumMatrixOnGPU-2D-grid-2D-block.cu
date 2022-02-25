@@ -3,7 +3,7 @@
 #include <time.h>
 #include <iostream>
 
-#include "common.h"
+#include "../common/common.h"
 
 void checkResult(float *hostRef, float *gpuRef, const int N)
 {

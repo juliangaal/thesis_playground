@@ -1,4 +1,4 @@
-#include "common.h"
+#include "../common/common.h"
 #include <cuda_runtime.h>
 #include <stdio.h>
 #include <time.h>
@@ -78,10 +78,10 @@ int main(int argc, char **argv)
     size_t nBytes = nElem * sizeof(float);
 
     float *h_A, *h_B, *hostRef, *gpuRef;
-    h_A     = (float *)malloc(nBytes);
-    h_B     = (float *)malloc(nBytes);
-    hostRef = (float *)malloc(nBytes);
-    gpuRef  = (float *)malloc(nBytes);
+    h_A     = (float*)malloc(nBytes);
+    h_B     = (float*)malloc(nBytes);
+    hostRef = (float*)malloc(nBytes);
+    gpuRef  = (float*)malloc(nBytes);
 
     double iStart, iElaps;
 
@@ -113,15 +113,14 @@ int main(int argc, char **argv)
 
     // invoke kernel at host side
     int iLen = 512;
-    dim3 block (iLen);
-    dim3 grid  ((nElem + block.x - 1) / block.x);
+    dim3 block(iLen);
+    dim3 grid((nElem + block.x - 1) / block.x);
 
     iStart = seconds();
     sumArraysOnGPU<<<grid, block>>>(d_A, d_B, d_C, nElem);
     CHECK(cudaDeviceSynchronize());
     iElaps = seconds() - iStart;
-    printf("sumArraysOnGPU <<<  %d, %d  >>>  Time elapsed %f sec\n", grid.x,
-           block.x, iElaps);
+    printf("sumArraysOnGPU <<<  %d, %d  >>>  Time elapsed %f sec\n", grid.x, block.x, iElaps);
 
     // check kernel error
     CHECK(cudaGetLastError()) ;
