@@ -21,3 +21,6 @@ set_target_properties(sumMatrixOnGPU-2D-grid-1D-block-int PROPERTIES CUDA_SEPARA
 
 add_executable(checkDeviceInformation checkDeviceInformation.cu)
 set_target_properties(checkDeviceInformation PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+add_executable(sumMatrixOnGPU-timer sumMatrixOnGPU-timer.cu)
+set_target_properties(sumMatrixOnGPU-timer PROPERTIES CUDA_SEPARABLE_COMPILATION ON)

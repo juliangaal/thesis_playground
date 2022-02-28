@@ -3,7 +3,7 @@
 #include <time.h>
 #include <iostream>
 
-#include "common.h"
+#include "../common/common.h"
 
 void checkResult(int *hostRef, int *gpuRef, const int N)
 {
@@ -14,7 +14,7 @@ void checkResult(int *hostRef, int *gpuRef, const int N)
         if (abs(hostRef[i] - gpuRef[i]) > epsilon)
         {
             printf("Arrays do not match!\n");
-            printf("host %5.2f gpu %5.2f at current %d\n", hostRef[i],
+            printf("host %i gpu %i at current %i\n", hostRef[i],
                    gpuRef[i], i);
             return;
         }
@@ -86,7 +86,7 @@ int main()
 
     int nxy = nx * ny;
     int nBytes = nxy * sizeof( int);
-    printf("Matrix size: nx %d ny %d\n", nx, ny);
+    printf("Matrix size: nx %i ny %i\n", nx, ny);
 
     // initialize arrays (host)
      int *h_A, *h_B, *hostRef, *gpuRef;
