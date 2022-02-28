@@ -7,3 +7,9 @@ set_target_properties(simpleDeviceQuery PROPERTIES CUDA_SEPARABLE_COMPILATION ON
 add_executable(sumMatrix sumMatrix.cu)
 set_target_properties(sumMatrix PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 target_compile_options(sumMatrix PRIVATE $<$<COMPILE_LANGUAGE:CUDA>:-m64 -gencode arch=compute_75,code=sm_75>)
+
+add_executable(reduceInteger reduceInteger.cu)
+set_target_properties(reduceInteger PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+
+add_executable(reduceMin reduceMin.cu)
+set_target_properties(reduceMin PROPERTIES CUDA_SEPARABLE_COMPILATION ON)

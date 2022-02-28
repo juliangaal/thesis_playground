@@ -143,13 +143,13 @@ int main(int argc, char **argv)
     CHECK(cudaGetLastError());
 
     // run kernel 1
-//    iStart = seconds();
-//    mathKernel1<<<grid, block>>>(d_C);
-//    CHECK(cudaDeviceSynchronize());
-//    iElaps = seconds() - iStart;
-//    printf("mathKernel1 <<< %4d %4d >>> elapsed %f sec \n", grid.x, block.x,
-//           iElaps );
-//    CHECK(cudaGetLastError());
+    iStart = seconds();
+    mathKernel1<<<grid, block>>>(d_C);
+    CHECK(cudaDeviceSynchronize());
+    iElaps = seconds() - iStart;
+    printf("mathKernel1 <<< %4d %4d >>> elapsed %f sec \n", grid.x, block.x,
+           iElaps );
+    CHECK(cudaGetLastError());
 
     // run kernel 3
     iStart = seconds();
@@ -160,23 +160,23 @@ int main(int argc, char **argv)
            iElaps );
     CHECK(cudaGetLastError());
 
-//    // run kernel 3
-//    iStart = seconds();
-//    mathKernel3<<<grid, block>>>(d_C);
-//    CHECK(cudaDeviceSynchronize());
-//    iElaps = seconds() - iStart;
-//    printf("mathKernel3 <<< %4d %4d >>> elapsed %f sec \n", grid.x, block.x,
-//           iElaps);
-//    CHECK(cudaGetLastError());
-//
-//    // run kernel 4
-//    iStart = seconds();
-//    mathKernel4<<<grid, block>>>(d_C);
-//    CHECK(cudaDeviceSynchronize());
-//    iElaps = seconds() - iStart;
-//    printf("mathKernel4 <<< %4d %4d >>> elapsed %f sec \n", grid.x, block.x,
-//           iElaps);
-//    CHECK(cudaGetLastError());
+    // run kernel 3
+    iStart = seconds();
+    mathKernel3<<<grid, block>>>(d_C);
+    CHECK(cudaDeviceSynchronize());
+    iElaps = seconds() - iStart;
+    printf("mathKernel3 <<< %4d %4d >>> elapsed %f sec \n", grid.x, block.x,
+           iElaps);
+    CHECK(cudaGetLastError());
+
+    // run kernel 4
+    iStart = seconds();
+    mathKernel4<<<grid, block>>>(d_C);
+    CHECK(cudaDeviceSynchronize());
+    iElaps = seconds() - iStart;
+    printf("mathKernel4 <<< %4d %4d >>> elapsed %f sec \n", grid.x, block.x,
+           iElaps);
+    CHECK(cudaGetLastError());
 
     // free gpu memory and reset divece
     CHECK(cudaFree(d_C));
