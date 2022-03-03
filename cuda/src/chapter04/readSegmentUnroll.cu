@@ -87,6 +87,22 @@ __global__ void readOffsetUnroll4(float *A, float *B, float *C, const int n,
     }
 }
 
+__global__ void readOffsetUnroll4Pragma(float *A, float *B, float *C, const int n,
+                                  int offset)
+{
+    unsigned int i = blockIdx.x * blockDim.x * 4 + threadIdx.x;
+    unsigned int k = i + offset;
+
+    if (k + 3 * blockDim.x < n)
+    {
+        #pragma unroll
+        for (int j = 0; j < 4; ++j)
+        {
+            C[i + j * blockDim.x] = A[k + j * blockDim.x] + B[k + j * blockDim.x];
+        }
+    }
+}
+
 int main(int argc, char **argv)
 {
     // set up device
@@ -179,6 +195,19 @@ int main(int argc, char **argv)
     iElaps = seconds() - iStart;
     printf("unroll4    <<< %4d, %4d >>> offset %4d elapsed %f sec\n",
             grid.x / 4, block.x, offset, iElaps);
+    CHECK(cudaGetLastError());
+
+    // copy kernel result back to host side and check device results
+    CHECK(cudaMemcpy(gpuRef, d_C, nBytes, cudaMemcpyDeviceToHost));
+    checkResult(hostRef, gpuRef, nElem - offset);
+
+    // kernel 3
+    iStart = seconds();
+    readOffsetUnroll4Pragma<<<grid.x / 4, block>>>(d_A, d_B, d_C, nElem / 4, offset);
+    CHECK(cudaDeviceSynchronize());
+    iElaps = seconds() - iStart;
+    printf("unroll4Pragm<<< %4d, %4d >>> offset %4d elapsed %f sec\n",
+           grid.x / 4, block.x, offset, iElaps);
     CHECK(cudaGetLastError());
 
     // copy kernel result back to host side and check device results
