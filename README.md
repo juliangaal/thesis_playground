@@ -15,3 +15,7 @@ Subvoxelmap implementation from *3D Monte Carlo Localization with Efficient Dist
 ## CUDA
 
 CUDA introduction with *CUDA C Programming - John Cheng, Max Grossmann, Ty McKercher*
+
+Experiments with CUDA-accelerated LOAM-based feature registration.
+
+Code based on [official additional material from WROX](https://github.com/deeperlearning/professional-cuda-c-programming)

@@ -9,3 +9,4 @@ set(MY_CACHE_VARIABLE "VALUE" CACHE STRING "Description")
 
 add_subdirectory(src/chapter02)
 add_subdirectory(src/chapter03)
+add_subdirectory(src/chapter04)

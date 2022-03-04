@@ -17,8 +17,8 @@ set_target_properties(reduceMin PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 add_executable(nestedHelloWorld nestedHelloWorld.cu)
 set_target_properties(nestedHelloWorld PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
 
-add_executable(nestedReduce nestedReduce.cu)
-set_target_properties(nestedReduce PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
-
-add_executable(nestedReduce2 nestedReduce2.cu)
-set_target_properties(nestedReduce2 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+#add_executable(nestedReduce nestedReduce.cu)
+#set_target_properties(nestedReduce PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
+#
+#add_executable(nestedReduce2 nestedReduce2.cu)
+#set_target_properties(nestedReduce2 PROPERTIES CUDA_SEPARABLE_COMPILATION ON)
