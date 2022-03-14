@@ -1,3 +1,6 @@
 [submodule "subvoxelmap/ext/HighFive"]
 	path = subvoxelmap/ext/HighFive
 	url = git@github.com:BlueBrain/HighFive.git
+[submodule "loam/LOAM_NOTED_EN"]
+	path = loam/LOAM_NOTED_EN
+	url = git@github.com:juliangaal/LOAM_NOTED_EN.git
