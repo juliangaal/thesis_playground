@@ -8,6 +8,9 @@
 #     * http://users.ics.forth.gr/~lourakis/levmar/levmar.pdf
 # Changes since original:
 #   * replaced derivative calculation
+#   * Fixes visualization of parameters and its estimations
+#   * clean main algorithm loop
+#   * remove unused functions
 """
 import numpy as np
 import matplotlib.pyplot as plt
@@ -152,6 +155,7 @@ def main():
     params[1, 0] = 0.8
     num_data = 100  # set the data number
     data_input, data_output = generate_data(params, num_data)  # generate data as requested
+    print("real params:\n ", params)
     # set the init params for LM algorithm
     params[0, 0] = 6.0
     params[1, 0] = 0.3
@@ -159,7 +163,7 @@ def main():
     # using LM algorithm estimate params
     max_iter = 100
     est_params = LM(max_iter, params, data_input, data_output)
-    print("real params:\n ", params, "\nestimated\n", est_params)
+    print("\nestimated\n", est_params)
     a_est = est_params[0, 0]
     b_est = est_params[1, 0]
 
