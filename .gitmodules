@@ -4,3 +4,6 @@
 [submodule "loam/LOAM_NOTED_EN"]
 	path = loam/LOAM_NOTED_EN
 	url = git@github.com:juliangaal/LOAM_NOTED_EN.git
+[submodule "loam/src/A-LOAM"]
+	path = loam/src/A-LOAM
+	url = git@github.com:juliangaal/A-LOAM.git
