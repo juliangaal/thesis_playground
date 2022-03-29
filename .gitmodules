@@ -7,3 +7,6 @@
 [submodule "loam/src/A-LOAM"]
 	path = loam/src/A-LOAM
 	url = git@github.com:juliangaal/A-LOAM.git
+[submodule "registration/icp"]
+	path = registration/icp
+	url = git@github.com:juliangaal/icp.git
