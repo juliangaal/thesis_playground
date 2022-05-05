@@ -125,8 +125,8 @@ struct LocalMap
 
     /// load area from coordinate start to end from global map
     /// and insert into subvoxelmap
-    void load_area(int start, int end)
-    {
+//    void load_area(int start, int end)
+//    {
 //        fmt::print(" loading: ");
 //        for (int i = start; i < end + 1; ++i)
 //        {
@@ -138,7 +138,7 @@ struct LocalMap
 //            }
 //        }
 //        fmt::print("\n");
-    }
+//    }
 
     /// save area from coordinate start to end in global map
     void save_area(int start, int end)

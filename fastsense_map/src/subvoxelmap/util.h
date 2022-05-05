@@ -20,7 +20,7 @@ bool is_approx(T val1, T val2, T epsilon = 0.001)
 
 int conv_3dindex_1dindex(int x, int y, int z, int w, int d)
 {
-    return static_cast<int>(x + y * w + z * w * d);
+    return x + y * w + z * w * d;
 }
 
 template <typename T>

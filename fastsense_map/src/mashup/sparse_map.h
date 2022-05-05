@@ -1,7 +1,7 @@
 #pragma once
 
 /**
-  * @file SparseSubMap.h
+  * @file OccupiedChunk.h
   * @author julian 
   * @date 12/11/21
  */
@@ -9,9 +9,9 @@
 #include "subvoxelmap/util.h"
 #include "../util/point.h"
 
-struct SparseSubMap
+struct OccupiedChunk
 {
-    SparseSubMap(int size, int res, const int& default_val)
+    OccupiedChunk(int size, int res, const int& default_val)
     : h_(size / res)
     , w_(size / res)
     , d_(size / res)
@@ -23,7 +23,7 @@ struct SparseSubMap
         std::fill_n(data_, h_ * w_ * d_, default_val_);
     }
     
-    ~SparseSubMap()
+    ~OccupiedChunk()
     {
         delete[] data_;
     }
@@ -75,7 +75,7 @@ struct SparseMap
     : h_(static_cast<int>(size % 2 == 1 ? (size + 1) / res : (size / res)))
     , w_(h_)
     , d_(h_)
-    , data_(new SparseSubMap*[h_ * w_ * d_])
+    , data_(new OccupiedChunk*[h_ * w_ * d_])
     , offset_(static_cast<int>(static_cast<int>(size % 2 == 1 ? (size + 1) / 2 : size / 2)))
     , res_(res)
     , subvoxel_res_(subvoxel_res)
@@ -95,7 +95,7 @@ struct SparseMap
     void init_subvoxelmap(int index) const
     {
         if (subvoxel_unitialized(index)) {
-            data_[index] = new SparseSubMap(res_, subvoxel_res_, default_val_);
+            data_[index] = new OccupiedChunk(res_, subvoxel_res_, default_val_);
         }
     }
 
@@ -128,7 +128,7 @@ struct SparseMap
         insert_into_subvoxel(index, x, y, z, val);
     }
 
-    const SparseSubMap* sparse_submap(int x, int y, int z) const
+    const OccupiedChunk* sparse_submap(int x, int y, int z) const
     {
         if (!in_bounds(x, y, z, false))
         {
@@ -138,7 +138,7 @@ struct SparseMap
         return sparse_submap_unchecked(x, y, z);
     }
 
-    const SparseSubMap* sparse_submap_unchecked(int x, int y, int z) const
+    const OccupiedChunk* sparse_submap_unchecked(int x, int y, int z) const
     {
         return data_[util::conv_3dpoint_1dindex(x, y, z, res_, w_, d_)];
     }
@@ -228,7 +228,7 @@ struct SparseMap
     int h_;
     int w_;
     int d_;
-    SparseSubMap** data_;
+    OccupiedChunk** data_;
     int offset_;
     int res_;
     int subvoxel_res_;

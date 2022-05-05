@@ -11,16 +11,16 @@
 #include "global_map.h"
 #include "local_map.h"
 
-TEST_CASE("SparseSubMap", "[SparseSubMap]")
+TEST_CASE("OccupiedChunk", "[OccupiedChunk]")
 {
-    fmt::print("Testing SparseSubMap\n");
+    fmt::print("Testing OccupiedChunk\n");
     {
         int size = 5;
         int default_val = -999;
         int res = 1;
         int occupied = 0;
         
-        SparseSubMap map(size, res, default_val);
+        OccupiedChunk map(size, res, default_val);
         
         REQUIRE(map.n_occupied() == 0);
         REQUIRE(map.n_elems() == std::pow(size / res, 3));
@@ -60,7 +60,7 @@ TEST_CASE("SparseSubMap", "[SparseSubMap]")
         int res = 2;
         int occupied = 0;
         
-        SparseSubMap map(size, res, default_val);
+        OccupiedChunk map(size, res, default_val);
         
         REQUIRE(map.n_occupied() == 0);
         REQUIRE(map.n_elems() == std::pow(size / res, 3));
